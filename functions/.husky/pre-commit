@@ -1,0 +1,2 @@
+echo "running pre-commit checks..."
+lint-staged

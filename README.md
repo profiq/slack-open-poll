@@ -1,6 +1,6 @@
 # 🗳️ OpenPoll – TypeScript Open Source Slack Poll App
 
-**OpenPoll** is an open-source Slack-integrated app that lets your team quickly create and run polls using a `/poll` command. Inspired by [Simple Poll](https://www.simplepoll.rocks/), OpenPoll is built in **TypeScript**, runs in **Docker**, and is fully customizable for self-hosting or development learning.
+**OpenPoll** is an open-source Slack-integrated app that lets your team quickly create and run polls using a `/poll` command. Inspired by [Simple Poll](https://www.simplepoll.rocks/), OpenPoll is built in **TypeScript**, runs on **Firebase Cloud Functions**, and is fully customizable for self-hosting or development learning.
 
 ---
 
@@ -31,17 +31,16 @@
 ## 🔧 Tech Stack
 
 - **TypeScript** – Strong typing for clean and scalable code
-- **Node.js** (Express.js) – Lightweight backend API
+- **Firebase Cloud Functions** – Serverless backend API
+- **Cloud Firestore** – Real-time poll & vote persistence
 - **Slack Bolt SDK** – Slack integration & command handling
-- **MongoDB** – Poll & vote persistence
-- **Docker** – Consistent dev & deployment environments
 - **ngrok / localtunnel** – For local Slack command testing
 
 ---
 
-## 🐳 Running OpenPoll with Docker
+## 🚀 Running OpenPoll Locally
 
-> 🧠 First, ensure you have [Docker installed](https://docs.docker.com/get-docker/).
+> 🧠 First, ensure you have [Node.js](https://nodejs.org/) and [Firebase CLI](https://firebase.google.com/docs/cli) installed.
 
 ### 1. Clone the repository
 
@@ -50,29 +49,37 @@ git clone https://github.com/your-org/openpoll.git
 cd openpoll
 ```
 
-### 2. Create a `.env` file with your configuration
+### 2. Set up Firebase
+
+```bash
+npm install -g firebase-tools
+firebase login
+```
+
+### 3. Create a `.env` file with your configuration
 
 ```env
 SLACK_SIGNING_SECRET=your_signing_secret
 SLACK_BOT_TOKEN=xoxb-your-bot-token
-MONGODB_URI=mongodb://mongo:27017/openpoll
 ```
 
-### 3. Build and start the app using Docker Compose
+### 4. Install dependencies and start the development server
 
 ```bash
-docker-compose up --build
+cd functions
+npm install
+npm run serve
 ```
 
-### 4. Expose your local app using `ngrok` (or similar) for Slack to reach it
+### 5. Expose your local app using `ngrok` (or similar) for Slack to reach it
 
 ```bash
-npx ngrok http 3000
+npx ngrok http 5001
 ```
 
 Copy the HTTPS URL provided by ngrok (e.g., `https://abc123.ngrok.io`).
 
-### 5. Configure your Slack App
+### 6. Configure your Slack App
 
 - Go to [https://api.slack.com/apps](https://api.slack.com/apps)
 - Create a new app or select an existing one

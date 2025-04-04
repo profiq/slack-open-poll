@@ -1,0 +1,52 @@
+{
+  "name": "functions",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint --ext .js,.ts .",
+    "lint:fix": "eslint --ext .js,.ts . --fix",
+    "format": "prettier --write 'src/**/*.{js,ts}'",
+    "format:check": "prettier --check 'src/**/*.{js,ts}'",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "prepare": "husky"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "npm run format:check",
+      "npm run lint"
+    ]
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "firebase-admin": "^13.2.0",
+    "firebase-functions": "^6.3.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@eslint/js": "^9.23.0",
+    "eslint": "^9.23.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.4.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.29.0"
+  },
+  "private": true
+}
