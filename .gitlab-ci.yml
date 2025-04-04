@@ -1,13 +1,72 @@
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
-# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/pipeline/#customization
-# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
-# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+# OpenPoll GitLab CI/CD Configuration
+
+# Define the stages for the pipeline
 stages:
-- test
-sast:
-  stage: test
+  - setup
+  - lint
+  - build
+  - test
+  - security
+
+# Define default image and cache settings
+default:
+  image: node:20
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - functions/node_modules/
+
+# Install dependencies
+setup:
+  stage: setup
+  script:
+    - cd functions
+    - npm ci
+  artifacts:
+    paths:
+      - functions/node_modules/
+    expire_in: 1 hour
+
+# Lint check
+lint:
+  stage: lint
+  script:
+    - cd functions
+    - npm run lint
+  dependencies:
+    - setup
+  # Make this job required for merge requests
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      allow_failure: false
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      allow_failure: false
+    - allow_failure: true
+
+# Build the project
+build:
+  stage: build
+  script:
+    - cd functions
+    - npm run build
+  dependencies:
+    - setup
+  artifacts:
+    paths:
+      - functions/lib/
+    expire_in: 1 hour
+  # Make this job required for merge requests
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      allow_failure: false
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      allow_failure: false
+    - allow_failure: true
+
+# Include security scanning templates
 include:
-- template: Security/SAST.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+
+# Configure SAST
+sast:
+  stage: security
