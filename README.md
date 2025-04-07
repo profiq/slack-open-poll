@@ -68,7 +68,7 @@ SLACK_BOT_TOKEN=xoxb-your-bot-token
 ```bash
 cd functions
 npm install
-npm run serve
+npm run serve:watch
 ```
 
 ### 5. Expose your local app using `ngrok` (or similar) for Slack to reach it
