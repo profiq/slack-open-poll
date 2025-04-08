@@ -16,6 +16,12 @@ default:
     paths:
       - functions/node_modules/
 
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - when: never
+
 # Install dependencies
 setup:
   stage: setup
@@ -26,6 +32,7 @@ setup:
     paths:
       - functions/node_modules/
     expire_in: 1 hour
+  allow_failure: false
 
 # Lint check
 lint:
@@ -35,13 +42,7 @@ lint:
     - npm run lint
   dependencies:
     - setup
-  # Make this job required for merge requests
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      allow_failure: false
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      allow_failure: false
-    - allow_failure: true
+  allow_failure: false
 
 # Build the project
 build:
@@ -55,13 +56,7 @@ build:
     paths:
       - functions/lib/
     expire_in: 1 hour
-  # Make this job required for merge requests
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      allow_failure: false
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      allow_failure: false
-    - allow_failure: true
+  allow_failure: false
 
 # Include security scanning templates
 include:
@@ -70,3 +65,4 @@ include:
 # Configure SAST
 sast:
   stage: security
+  allow_failure: false
