@@ -1,1 +1,2 @@
-commitlint
+cd functions
+commitlint --edit $1

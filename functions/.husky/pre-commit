@@ -1,2 +1,9 @@
 echo "running pre-commit checks..."
+# Do not commit to main branch
+if [ "$(git symbolic-ref --short HEAD)" = "main" ]; then
+  echo "Cannot commit to main branch"
+  exit 1
+fi
+# Run lint check
+cd functions
 lint-staged
