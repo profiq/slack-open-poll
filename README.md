@@ -61,6 +61,8 @@ firebase login
 ```env
 SLACK_SIGNING_SECRET=your_signing_secret
 SLACK_BOT_TOKEN=xoxb-your-bot-token
+NODE_ENV=development
+FIRESTORE_EMULATOR_HOST=localhost:8080
 ```
 
 ### 4. Install dependencies and start the development server
@@ -90,6 +92,27 @@ Copy the HTTPS URL provided by ngrok (e.g., `https://abc123.ngrok.io`).
 - Install the app into your workspace
 
 ---
+
+## Firebase Firestone Database
+
+This module provides a database setup for future usage for a Slack Bolt app
+
+## Usage
+```ts
+import DatabaseService from './databaseService';
+const db = DatabaseService.getInstance();
+```
+
+## Local testing with emulator
+get to the root of the project - /open-poll
+firebase emulators:start --only firestore
+
+## For future testing and usage we will need to
+add into .env firebase service key and development:
+```ini
+FIREBASE_SERVICE_ACCOUNT_KEY=<your-key>
+NODE_ENV=development
+```
 
 ## 📚 Learning Resources
 

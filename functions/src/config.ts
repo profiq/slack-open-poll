@@ -8,6 +8,8 @@ dotenv.config();
 export const config = cleanEnv(process.env, {
   SLACK_SIGNING_SECRET: str(),
   SLACK_BOT_TOKEN: str(),
+  NODE_ENV: str({ choices: ['development', 'test', 'production'] }),
+  FIRESTORE_EMULATOR_HOST: str({ default: undefined }),
 });
 
 // Export typed configuration object
