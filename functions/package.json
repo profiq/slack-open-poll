@@ -13,7 +13,8 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "prepare": "cd .. && husky functions/.husky"
+    "prepare": "cd .. && husky functions/.husky",
+    "test": "vitest run"
   },
   "engines": {
     "node": "20"
@@ -49,8 +50,10 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
     "prettier": "^3.5.3",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.29.1"
+    "typescript-eslint": "^8.29.1",
+    "vitest": "^3.1.1"
   },
   "private": true
 }
