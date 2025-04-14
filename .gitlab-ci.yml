@@ -4,8 +4,8 @@
 stages:
   - setup
   - lint
-  - build
   - test
+  - build
   - security
 
 # Define default image and cache settings
@@ -43,6 +43,20 @@ lint:
   dependencies:
     - setup
   allow_failure: false
+
+# Tests check
+test:
+  stage: test
+  script:
+    - cd functions
+    - npm run test
+  dependencies:
+    - setup
+  allow_failure: false
+  variables:
+    SLACK_BOT_TOKEN: "test-token"
+    SLACK_SIGNING_SECRET: "test-secret"
+    FIRESTORE_EMULATOR_HOST: "localhost:8080"
 
 # Build the project
 build:
