@@ -49,7 +49,7 @@ test:
   stage: test
   script:
     - cd functions
-    - npm run test
+    - npm run test:coverage
   dependencies:
     - setup
   allow_failure: false
@@ -57,6 +57,7 @@ test:
     SLACK_BOT_TOKEN: "test-token"
     SLACK_SIGNING_SECRET: "test-secret"
     FIRESTORE_EMULATOR_HOST: "localhost:8080"
+  coverage: '/^All files\s+\|\s+[^\|]+\|\s+[^\|]+\|\s+[^\|]+\|\s+([0-9.]+)/'
 
 # Build the project
 build:

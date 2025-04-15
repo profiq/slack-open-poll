@@ -14,7 +14,8 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "prepare": "cd .. && husky functions/.husky",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "engines": {
     "node": "20"
@@ -41,6 +42,7 @@
     "@eslint/js": "^9.24.0",
     "@typescript-eslint/eslint-plugin": "^8.29.1",
     "@typescript-eslint/parser": "^8.29.1",
+    "@vitest/coverage-v8": "^3.1.1",
     "eslint": "^9.24.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^10.1.1",
