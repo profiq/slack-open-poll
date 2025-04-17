@@ -97,21 +97,54 @@ Copy the HTTPS URL provided by ngrok (e.g., `https://abc123.ngrok.io`).
 
 This module provides a database setup for future usage for a Slack Bolt app
 
-## Usage
+### Usage
 ```ts
 import DatabaseService from './databaseService';
 const db = DatabaseService.getInstance();
 ```
 
-## Local testing with emulator
+### Local testing with emulator
 get to the root of the project - /open-poll
 firebase emulators:start --only firestore
 
-## For future testing and usage we will need to
+### For future testing and usage we will need to
 add into .env firebase service key and development:
 ```ini
 FIREBASE_SERVICE_ACCOUNT_KEY=<your-key>
 NODE_ENV=development
+```
+
+## Usage of Logger
+
+Basic setup:
+```ts
+import { Logger } from './utils/logger';
+const logger = new Logger({ requestId: 'r-123' });
+logger.info('Logger started');
+```
+User context:
+```ts
+loger.info('User did something', {
+  userId: 'u-id',
+  workspaceId: 'w-id',
+});
+```
+Using withContext:
+```ts
+const userLogger = logger.withContext({
+  userId: 'u-id',
+  workspaceId: 'w-id',
+});
+userLogger.debug('Debugging user data');
+userLogger.info('User joined a poll', { pollIdd: 'p-id' });
+```
+Using logger errors:
+```ts
+try {
+  throw new Error('Error');
+} catch (err) {
+  logger.error(err);
+}
 ```
 
 ## 📚 Learning Resources

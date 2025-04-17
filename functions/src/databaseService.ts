@@ -1,6 +1,6 @@
 import admin from 'firebase-admin';
 import { DocumentData } from 'firebase-admin/firestore';
-import config from './config';
+import config from './utils/config';
 
 class DatabaseService {
   private static instance: DatabaseService;

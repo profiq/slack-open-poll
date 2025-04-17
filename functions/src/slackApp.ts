@@ -1,6 +1,6 @@
 import { App, ExpressReceiver } from '@slack/bolt';
 import { AnyBlock } from '@slack/types';
-import config from './config';
+import config from './utils/config';
 
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
