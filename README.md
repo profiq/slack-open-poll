@@ -38,6 +38,51 @@
 
 ---
 
+## Architecture
+
+### Flow chart
+```mermaid
+flowchart TD
+ subgraph subGraph0["Firebase Function"]
+        D["Slack Bolt App with ExpressReceiver"]
+        C["Firebase Function"]
+        E["Handle Slash Command or Interaction"]
+        F["Read/Write to Firestore"]
+        G["Recalculate Vote Totals"]
+        H["Build Updated Slack Message"]
+        I["Call chat.update to refresh Slack message"]
+  end
+    A["User on Slack"] -- Slash Command or Button Click --> B["Slack API"]
+    B -- HTTP Request --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+```
+
+### Architecture Diagram
+
+```mermaid
+sequenceDiagram
+  actor User as User
+  participant Slack as Slack API
+  participant FirebaseFunction as FirebaseFunction
+  participant SlackBolt as SlackBolt
+  participant Firestore as Firestore
+  User ->> Slack: /createpoll or clicks button
+  Slack ->> FirebaseFunction: Sends payload (slash command / interaction)
+  FirebaseFunction ->> SlackBolt: Passes request to ExpressReceiver
+  SlackBolt ->> SlackBolt: Parses command or interaction
+  SlackBolt ->> Firestore: Store poll or update vote
+  Firestore -->> SlackBolt: Poll data and vote results
+  SlackBolt ->> Slack: chat.postMessage or chat.update with new blocks
+  Slack -->> User: Updated poll message with current results
+```
+---
+
+
 ## 🚀 Running OpenPoll Locally
 
 > 🧠 First, ensure you have [Node.js](https://nodejs.org/) and [Firebase CLI](https://firebase.google.com/docs/cli) installed.
