@@ -1,6 +1,7 @@
 import { App, ExpressReceiver } from '@slack/bolt';
 import { AnyBlock } from '@slack/types';
 import config from './utils/config';
+import { PollService } from './services/pollService';
 
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
@@ -30,6 +31,19 @@ app.message('hello', async ({ message, say }) => {
 // Format: /poll "Question" "," list of options separated by ","
 app.command('/poll', async ({ command, ack, respond }) => {
   await ack();
+
+  const polls = new PollService();
+  // Create a test poll using a Poll service
+  const poll = await polls.create({
+    question: 'How are you?',
+    options: [
+      { label: 'Good', id: '1' },
+      { label: 'Bad', id: '2' },
+    ],
+    createdBy: command.user_id,
+    channelId: command.channel_id,
+  });
+  console.log(poll);
 
   const text = command.text || '';
 

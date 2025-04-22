@@ -15,6 +15,7 @@
     "logs": "firebase functions:log",
     "prepare": "cd .. && husky functions/.husky",
     "test": "vitest run",
+    "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage"
   },
   "engines": {
