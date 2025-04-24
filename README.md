@@ -110,6 +110,8 @@ NODE_ENV=development
 FIRESTORE_EMULATOR_HOST=localhost:8080
 ```
 
+You can get `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN` in step number 6
+
 ### 4. Install dependencies and start the development server
 
 ```bash
@@ -130,11 +132,23 @@ Copy the HTTPS URL provided by ngrok (e.g., `https://abc123.ngrok.io`).
 
 - Go to [https://api.slack.com/apps](https://api.slack.com/apps)
 - Create a new app or select an existing one
-- Add a **Slash Command**: `/poll`
-  - Set the request URL to your ngrok URL + endpoint (e.g., `https://abc123.ngrok.io/slack/events`)
-- Enable **Interactivity** and set the same URL
-- Assign OAuth scopes: `commands`, `chat:write`, `incoming-webhook`
-- Install the app into your workspace
+- In **Features** open **Event Subscriptions** and select **On**
+- Into Request URL paste your ngrok URL and wait for verification
+- Open **Slash Commands** and **Create New Command** and fill in the details:
+  - Command: '/poll'
+  - Request URL: your ngrok URL + endpoint (e.g., `https://abc123.ngrok.io/slack/events`)
+  - Optional: fill Short Description and Usage Hint
+  - **Save** in the bottom-right corner
+- In **Interactivity** select **On** and set the same URL
+- In **OAuth & Permissions** scroll down to **Scopes** and assign following scopes:
+  - `channels:history`
+  - `chat:write`
+  - `commands`
+  - `incoming-webhook`
+- Now update your .env file:
+  - Get `SLACK_SIGNING_SECRET` in **Settings** and **Basic Information**
+  - Get `SLACK_BOT_TOKEN` in **Features** and **OAuth & Permisions** in OAuth Tokens
+- Install the app into your workspace under the token you just got
 
 ---
 

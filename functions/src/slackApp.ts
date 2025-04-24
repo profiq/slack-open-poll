@@ -3,6 +3,9 @@ import { AnyBlock } from '@slack/types';
 import config from './utils/config';
 import { PollService } from './services/pollService';
 
+import { pollDisplayBlock } from './components/pollDisplay';
+import { mrkdwnSection } from './components/mrkdwnSection';
+
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
   endpoints: '/events',
@@ -34,72 +37,42 @@ app.command('/poll', async ({ command, ack, respond }) => {
 
   const polls = new PollService();
   // Create a test poll using a Poll service
-  const poll = await polls.create({
-    question: 'How are you?',
-    options: [
-      { label: 'Good', id: '1' },
-      { label: 'Bad', id: '2' },
-    ],
-    createdBy: command.user_id,
-    channelId: command.channel_id,
-  });
-  console.log(poll);
+  try {
+    const pollRef = await polls.create({
+      question: 'How are you?',
+      options: [
+        { label: 'Good', id: '1' },
+        { label: 'Bad', id: '2' },
+      ],
+      createdBy: command.user_id,
+      channelId: command.channel_id,
+    });
+    console.log(pollRef);
 
-  const text = command.text || '';
+    // Working usage of creating the poll above in Slack using /poll command
+    const pollSnap = await pollRef.get();
+    const poll = pollSnap.data();
 
-  const parts = text.split(',').map((str) => str.trim());
+    if (poll) {
+      const blocks: AnyBlock[] = pollDisplayBlock(poll, pollSnap.id);
 
-  // TODO: add check if it is the right format
-
-  const question = parts[0];
-  const options = parts.slice(1);
-
-  const blocks: AnyBlock[] = [];
-
-  blocks.push({
-    type: 'section',
-    text: {
-      type: 'mrkdwn',
-      text: `*${question}*`,
-    },
-  });
-
-  blocks.push({ type: 'divider' });
-
-  for (let i = 0; i < options.length; i++) {
-    const option = options[i];
-
-    blocks.push({
-      type: 'section',
-      text: {
-        type: 'plain_text',
-        text: option,
-      },
-      accessory: {
-        type: 'button',
-        text: {
-          type: 'plain_text',
-          text: 'Vote',
-        },
-        action_id: i.toString(),
-      },
+      await respond({
+        response_type: 'in_channel',
+        blocks,
+      });
+    } else {
+      await respond({
+        response_type: 'ephemeral',
+        text: 'Something went wrong with creating the poll',
+      });
+    }
+  } catch (error) {
+    console.error('Error creating poll', error);
+    await respond({
+      response_type: 'ephemeral',
+      blocks: [mrkdwnSection('error')],
     });
   }
-
-  blocks.push({ type: 'divider' });
-
-  blocks.push({
-    type: 'section',
-    text: {
-      type: 'mrkdwn',
-      text: `Poll created by *<@${command.user_id}>*`,
-    },
-  });
-
-  await respond({
-    response_type: 'in_channel',
-    blocks,
-  });
 });
 
 export const slackReceiver = receiver;
