@@ -206,6 +206,29 @@ try {
 }
 ```
 
+## Slash Command Handler
+
+Handler processes `/poll` commands from users, validates the input, creates a poll, and return the response
+
+# Funcionality
+
+Parses poll question and options from command text
+Validates number of options (2-10)
+Creates a poll using the PollService
+Returns a block message in the Slack channel with the question, options and buttons
+Handles errors if the command format is invalid or if the poll creation fails
+
+# Usage and Example
+
+Template:
+```
+/poll "Question?" Option 1, Option 2, Option 3
+```
+Example:
+```
+/poll "When would be the right time for a meeting?" 10 AM, 2 PM, 4 PM, 6 PM 
+```
+
 ## 📚 Learning Resources
 
 If you're new to some parts of this stack, check out these:
