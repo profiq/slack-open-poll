@@ -208,17 +208,18 @@ try {
 
 ## Slash Command Handler
 
-Handler processes `/poll` commands from users, validates the input, creates a poll, and return the response
+Handler processes `/poll` commands from users, validates the input, creates a poll using chat.postMessage, and returns the poll message
 
-# Funcionality
+### Funcionality
 
 Parses poll question and options from command text
 Validates number of options (2-10)
 Creates a poll using the PollService
 Returns a block message in the Slack channel with the question, options and buttons
 Handles errors if the command format is invalid or if the poll creation fails
+When errors happen, the slash command is responded by chat.postEphemeral which is shown just to the user that tried to create the poll
 
-# Usage and Example
+### Usage and Example
 
 Template:
 ```
@@ -228,6 +229,17 @@ Example:
 ```
 /poll "When would be the right time for a meeting?" 10 AM, 2 PM, 4 PM, 6 PM 
 ```
+
+## Vote Handler
+
+Handler processes app.action when the vote happens
+
+### Functionality
+
+The vote is recorded in the PollService
+After vote is recorded, the poll display is updated with the latest vote counts using user's ID
+If user voted again for the same option, the vote is deleted
+If user voted again for another option, the previous vote is deleted and new one is created 
 
 ## 📚 Learning Resources
 

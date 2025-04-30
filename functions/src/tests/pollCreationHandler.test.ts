@@ -4,12 +4,27 @@ import { PollService } from '../services/pollService';
 import { AllMiddlewareArgs, SlackCommandMiddlewareArgs } from '@slack/bolt';
 import { AnyBlock } from '@slack/types';
 import { pollDisplayBlock } from '../components/pollDisplay';
+import { WebClient } from '@slack/web-api';
 
-vi.mock('../services/pollService)');
+vi.mock('../services/pollService');
 vi.mock('../components/pollDisplay');
 
-const mockRespond = vi.fn();
+const mockPostEphemeral = vi.fn();
+const mockPostMessage = vi.fn();
+
+const mockClient = {
+  chat: {
+    postEphemeral: mockPostEphemeral,
+    postMessage: mockPostMessage,
+    update: vi.fn(),
+  },
+  conversations: {
+    history: vi.fn(),
+  },
+} as unknown as WebClient;
+
 const mockAck = vi.fn();
+const mockRespond = vi.fn();
 
 const baseCommand = {
   command: {
@@ -33,12 +48,14 @@ describe('handlePollCommand', () => {
         ...baseCommand.command,
         text: 'Invalid format',
       },
+      client: mockClient,
     });
 
-    expect(mockRespond).toHaveBeenCalledWith(
+    expect(mockPostEphemeral).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: expect.stringContaining('Invalid format'),
-        response_type: 'ephemeral',
+        channel: baseCommand.command.channel_id,
+        user: baseCommand.command.user_id,
+        text: 'Invalid format. Use: /poll "Your question?" option1, option2, ...',
       })
     );
   });
@@ -51,12 +68,14 @@ describe('handlePollCommand', () => {
         ...baseCommand.command,
         text,
       },
+      client: mockClient,
     });
 
-    expect(mockRespond).toHaveBeenCalledWith(
+    expect(mockPostEphemeral).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: expect.stringContaining('at least 2 options'),
-        response_type: 'ephemeral',
+        channel: baseCommand.command.channel_id,
+        user: baseCommand.command.user_id,
+        text: 'Please provide at least 2 options.',
       })
     );
   });
@@ -69,12 +88,14 @@ describe('handlePollCommand', () => {
         ...baseCommand.command,
         text,
       },
+      client: mockClient,
     });
 
-    expect(mockRespond).toHaveBeenCalledWith(
+    expect(mockPostEphemeral).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: expect.stringContaining('up to 10 options'),
-        response_type: 'ephemeral',
+        channel: baseCommand.command.channel_id,
+        user: baseCommand.command.user_id,
+        text: 'You can only provide up to 10 options.',
       })
     );
   });
@@ -113,12 +134,14 @@ describe('handlePollCommand', () => {
         ...baseCommand.command,
         text,
       },
+      client: mockClient,
     });
 
     expect(mockCreate).toHaveBeenCalled();
     expect(mockGet).toHaveBeenCalled();
-    expect(mockRespond).toHaveBeenCalledWith({
-      response_type: 'in_channel',
+    expect(mockPostMessage).toHaveBeenCalledWith({
+      channel: baseCommand.command.channel_id,
+      text: `Poll: Are you hungry?`,
       blocks: [
         {
           type: 'section',
@@ -141,20 +164,13 @@ describe('handlePollCommand', () => {
     await handlePollCommand({
       ...baseCommand,
       command: { ...baseCommand.command, text },
+      client: mockClient,
     });
 
-    expect(mockRespond).toHaveBeenCalledWith(
+    expect(mockPostEphemeral).toHaveBeenCalledWith(
       expect.objectContaining({
-        response_type: 'ephemeral',
-        blocks: expect.arrayContaining([
-          expect.objectContaining({
-            type: 'section',
-            text: expect.objectContaining({
-              type: 'mrkdwn',
-              text: expect.stringContaining('Error'),
-            }),
-          }),
-        ]),
+        channel: baseCommand.command.channel_id,
+        user: baseCommand.command.user_id,
         text: 'An error occurrred',
       })
     );

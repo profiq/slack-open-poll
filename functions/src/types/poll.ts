@@ -2,7 +2,7 @@ export interface Poll {
   question: string;
   options: PollOption[];
   createdBy: string;
-  channelTimeStamp?: string;
+  channelTimeStamp: string;
   channelId: string;
   votes?: Vote[];
 }

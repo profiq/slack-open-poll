@@ -1,6 +1,7 @@
 import { App, ExpressReceiver } from '@slack/bolt';
 import config from './utils/config';
 import { handlePollCommand } from './handlers/pollCreationHandler';
+import { handleVoteAction } from './handlers/voteHandler';
 
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
@@ -29,5 +30,7 @@ app.message('hello', async ({ message, say }) => {
 
 // Parses dynamic input, Creates a poll and Stores data in Firestore
 app.command('/poll', handlePollCommand);
+
+app.action(/^vote_.*/, handleVoteAction);
 
 export const slackReceiver = receiver;

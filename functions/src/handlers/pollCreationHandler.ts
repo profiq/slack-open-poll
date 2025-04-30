@@ -8,7 +8,7 @@ import { Logger } from '../utils/logger';
 export const handlePollCommand = async ({
   command,
   ack,
-  respond,
+  client,
 }: SlackCommandMiddlewareArgs & AllMiddlewareArgs): Promise<void> => {
   await ack();
 
@@ -21,27 +21,32 @@ export const handlePollCommand = async ({
   });
 
   if (!parsed) {
-    return respond({
-      response_type: 'ephemeral',
+    await client.chat.postEphemeral({
+      channel: command.channel_id,
+      user: command.user_id,
       text: 'Invalid format. Use: /poll "Your question?" option1, option2, ...',
     });
+    return;
   }
 
   const { question, options } = parsed;
 
   if (options.length < 2) {
     log.warn('Creating poll failed: Less than 2 options provided');
-    return respond({
-      response_type: 'ephemeral',
+    await client.chat.postEphemeral({
+      channel: command.channel_id,
+      user: command.user_id,
       blocks: [mrkdwnSection('error', 'Please provide at least 2 options')],
       text: 'Please provide at least 2 options.',
     });
+    return;
   }
 
   if (options.length > 10) {
     log.warn('Creating poll failed: More than 10 options provided');
-    return respond({
-      response_type: 'ephemeral',
+    await client.chat.postEphemeral({
+      channel: command.channel_id,
+      user: command.user_id,
       blocks: [mrkdwnSection('error', 'You can only provide up to 10 options')],
       text: 'You can only provide up to 10 options.',
     });
@@ -54,11 +59,13 @@ export const handlePollCommand = async ({
 
   const pollService = new PollService();
   try {
+    const timestamp = new Date().toISOString();
     const pollRef = await pollService.create({
       question,
       options: pollOptions,
       createdBy: command.user_id,
       channelId: command.channel_id,
+      channelTimeStamp: timestamp,
     });
 
     const pollSnap = await pollRef.get();
@@ -66,8 +73,9 @@ export const handlePollCommand = async ({
 
     if (!poll) {
       log.error('No poll was found');
-      return respond({
-        response_type: 'ephemeral',
+      await client.chat.postEphemeral({
+        channel: command.channel_id,
+        user: command.user_id,
         blocks: [mrkdwnSection('error', 'No poll was found')],
         text: 'No poll was found',
       });
@@ -77,18 +85,21 @@ export const handlePollCommand = async ({
 
     const blocks: AnyBlock[] = pollDisplayBlock(poll, pollSnap.id);
 
-    return respond({
-      response_type: 'in_channel',
+    await client.chat.postMessage({
+      channel: command.channel_id,
+      text: `Poll: ${poll?.question}`,
       blocks,
     });
   } catch (error) {
     log.error(String(error));
 
-    return respond({
-      response_type: 'ephemeral',
+    await client.chat.postEphemeral({
+      channel: command.channel_id,
+      user: command.user_id,
       blocks: [mrkdwnSection('error', `Error: ${error}`)],
       text: 'An error occurrred',
     });
+    return;
   }
 };
 

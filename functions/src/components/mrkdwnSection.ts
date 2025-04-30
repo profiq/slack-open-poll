@@ -16,11 +16,3 @@ export const mrkdwnSection = (type: MessageType, messageText?: string): AnyBlock
     text: messageText ?? messageMap[type],
   },
 });
-
-export const mrkdwnSectionForOption = (index: number, label: string): AnyBlock => ({
-  type: 'section',
-  text: {
-    type: 'mrkdwn',
-    text: `${index + 1}. ${label}`,
-  },
-});
