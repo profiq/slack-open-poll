@@ -7,6 +7,7 @@ stages:
   - test
   - build
   - security
+  - deploy_production
 
 # Define default image and cache settings
 default:
@@ -20,6 +21,7 @@ workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: '$CI_COMMIT_TAG'
     - when: never
 
 # Install dependencies
@@ -81,3 +83,32 @@ include:
 sast:
   stage: security
   allow_failure: false
+
+# Configure production deployment
+deploy_production:
+  stage: deploy_production
+  before_script:
+    - cd functions
+    - npm run build
+    - cd ..
+    - npm i -g firebase-tools
+    - echo -n $GOOGLE_APPLICATION_CREDENTIALS_BASE64 | base64 -d > private-key.json
+    - export GOOGLE_APPLICATION_CREDENTIALS="private-key.json"
+    - echo "SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN_PROD" >> functions/.env
+    - echo "SLACK_SIGNING_SECRET=$SLACK_SIGNING_SECRET_PROD" >> functions/.env
+  script:
+    - firebase deploy --only functions
+  dependencies:
+    - build
+    - test
+    - lint
+    - sast
+  environment:
+    name: production
+  variables:
+    SLACK_SIGNING_SECRET: "$SLACK_SIGNING_SECRET_PROD"
+    SLACK_BOT_TOKEN: "$SLACK_BOT_TOKEN_PROD"
+    NODE_ENV: production
+  allow_failure: false
+  rules:
+    - if: '$CI_COMMIT_TAG'

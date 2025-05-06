@@ -13,7 +13,6 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "prepare": "cd .. && husky functions/.husky",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage"
@@ -51,7 +50,6 @@
     "eslint-plugin-import": "^2.31.0",
     "firebase-functions-test": "^3.4.1",
     "globals": "^16.0.0",
-    "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
