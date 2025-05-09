@@ -15,22 +15,41 @@ export class PollService extends FirestoreService<Poll> {
       }
 
       const votes = poll.votes || [];
-      const voteIndex = votes.findIndex((v) => v.userId === vote.userId);
+      const isMultiple = poll.multiple === true;
+      const userVotes = votes.filter((v) => v.userId === vote.userId);
 
-      if (voteIndex !== -1) {
-        // If user clicks the same option again, remove the vote
-        if (votes[voteIndex].optionId === vote.optionId) {
-          votes.splice(voteIndex, 1);
+      // if multiple choice, check if the vote option existed, then either remove it or create a new vote
+      if (isMultiple) {
+        const hasVotedForThisOption = userVotes.some((v) => v.optionId === vote.optionId);
+        if (hasVotedForThisOption) {
+          // vote already existed
+          const updatedVotes = votes.filter((v) => !(v.userId === vote.userId && v.optionId === vote.optionId));
+          this.updateInTransaction(transaction, pollId, { votes: updatedVotes });
         } else {
-          // Otherwise, update to new option
-          votes[voteIndex] = vote;
+          votes.push(vote);
+          this.updateInTransaction(transaction, pollId, { votes });
         }
       } else {
-        // Add new vote
-        votes.push(vote);
+        // is single choice
+        const existingVote = userVotes.length > 0;
+        if (existingVote) {
+          const existingVoteOption = userVotes[0].optionId;
+          if (existingVoteOption === vote.optionId) {
+            // remove the same vote
+            const updatedVotes = votes.filter((v) => v.userId !== vote.userId);
+            this.updateInTransaction(transaction, pollId, { votes: updatedVotes });
+          } else {
+            // change the vote for new one
+            const updatedVotes = votes.filter((v) => v.userId !== vote.userId);
+            updatedVotes.push(vote);
+            this.updateInTransaction(transaction, pollId, { votes: updatedVotes });
+          }
+        } else {
+          // add first vote
+          votes.push(vote);
+          this.updateInTransaction(transaction, pollId, { votes });
+        }
       }
-
-      this.updateInTransaction(transaction, pollId, { votes });
     });
   }
 }

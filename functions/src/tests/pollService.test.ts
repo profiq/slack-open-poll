@@ -3,7 +3,6 @@ import { PollService } from '../services/pollService';
 import { firestore } from '../firebase';
 import { Poll, Vote } from '../types/poll';
 
-// Mock firebase
 vi.mock('../firebase', () => ({
   firestore: {
     collection: vi.fn(),
@@ -38,6 +37,7 @@ describe('PollService', () => {
     channelTimeStamp: '1234567890.000000',
     channelId: 'channel-1',
     votes: [],
+    multiple: false,
   };
 
   beforeEach(() => {
@@ -77,11 +77,11 @@ describe('PollService', () => {
       channelTimeStamp: '1234567890.000000',
       channelId: 'channel-1',
       votes: [],
+      multiple: false,
     };
 
     it('should create a new poll', async () => {
       const mockDocRef = { id: 'new-poll-1' };
-      // mockDoc.add.mockResolvedValue({ ...mockDoc, ...mockDocRef });
       mockCollection.add.mockReturnValue({ ...mockDoc, ...mockDocRef });
 
       const result = await service.create(newPoll);
@@ -200,6 +200,42 @@ describe('PollService', () => {
       await expect(service.vote('poll-1', { userId: 'user-1', optionId: 'opt-1' })).rejects.toThrow(
         'Transaction failed'
       );
+    });
+
+    // multiple choice tests
+    it('should handle multiple votes when multiple is true', async () => {
+      const pollWithMultipleVotes = { ...mockPoll, multiple: true, votes: [] };
+      mockTransaction.get.mockResolvedValue({
+        data: () => pollWithMultipleVotes,
+      });
+
+      await service.vote('poll-1', mockVote);
+      expect(mockTransaction.update).toHaveBeenCalledWith(mockDoc, { votes: [mockVote] });
+
+      await service.vote('poll-1', mockVote);
+      expect(mockTransaction.update).toHaveBeenCalledWith(mockDoc, { votes: [] });
+    });
+
+    it('should add new vote when multiple is true', async () => {
+      const pollWithMultipleVotes = { ...mockPoll, multiple: true, votes: [] };
+      mockTransaction.get.mockResolvedValue({
+        data: () => pollWithMultipleVotes,
+      });
+
+      const newVote: Vote = { userId: 'user-2', optionId: 'opt-2' };
+      await service.vote('poll-1', newVote);
+
+      expect(mockTransaction.update).toHaveBeenCalledWith(mockDoc, { votes: [newVote] });
+    });
+
+    it('should remove vote when user clicks same option when multiple is true', async () => {
+      const pollWithMultipleVotes = { ...mockPoll, multiple: true, votes: [mockVote] };
+      mockTransaction.get.mockResolvedValue({
+        data: () => pollWithMultipleVotes,
+      });
+
+      await service.vote('poll-1', mockVote);
+      expect(mockTransaction.update).toHaveBeenCalledWith(mockDoc, { votes: [] });
     });
   });
 });

@@ -22,8 +22,19 @@ export const pollDisplayBlock = (poll: Poll | undefined, pollId: string): AnyBlo
     ':keycap_ten:',
   ];
 
+  const multiChoiceBlock: AnyBlock = {
+    type: 'context',
+    elements: [
+      {
+        type: 'mrkdwn',
+        text: 'You can select more than one option',
+      },
+    ],
+  };
+
   const displayBlock: AnyBlock[] = [
     mrkdwnSection('default', poll.question),
+    ...(poll.multiple ? [multiChoiceBlock] : []),
     {
       type: 'divider',
     },

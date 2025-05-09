@@ -5,6 +5,7 @@ export interface Poll {
   channelTimeStamp: string;
   channelId: string;
   votes?: Vote[];
+  multiple?: boolean;
 }
 
 export type PollInput = Omit<Poll, 'id' | 'createdAt' | 'votes'>;

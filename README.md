@@ -208,11 +208,14 @@ try {
 
 ## Slash Command Handler
 
-Handler processes `/poll` commands from users, validates the input, creates a poll using chat.postMessage, and returns the poll message
+Handler processes `/poll` commands from users, validates the input, creates a poll using chat.postMessage
+Returns the poll message with options and buttons for voting
+Added functionality for multi-choice polls
 
 ### Funcionality
 
 Parses poll question and options from command text
+Checks for keywords before question like `multiple` for multi-choice polls
 Validates number of options (2-10)
 Creates a poll using the PollService
 Returns a block message in the Slack channel with the question, options and buttons
@@ -229,6 +232,10 @@ Example:
 ```
 /poll "When would be the right time for a meeting?" 10 AM, 2 PM, 4 PM, 6 PM 
 ```
+Example with multi-choice:
+```
+/poll multiple "When would be the right time for a meeting?" 10 AM, 2 PM, 4 PM, 6 PM 
+```
 
 ## Vote Handler
 
@@ -238,8 +245,16 @@ Handler processes app.action when the vote happens
 
 The vote is recorded in the PollService
 After vote is recorded, the poll display is updated with the latest vote counts using user's ID
-If user voted again for the same option, the vote is deleted
-If user voted again for another option, the previous vote is deleted and new one is created 
+If user votes again for the same option, the vote is deleted
+
+If user votes again for different option:
+- For single choice polls (default):
+  - Previous choice gets deleted
+  - New choice is added
+- For multi-choice polls:
+  - Previous choices stay intact
+  - New choice is added to list of other choices
+
 
 ## 📚 Learning Resources
 
