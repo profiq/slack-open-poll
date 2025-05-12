@@ -1,4 +1,6 @@
-export interface Poll {
+import { BaseDocument } from './baseDocument';
+
+export interface Poll extends BaseDocument {
   question: string;
   options: PollOption[];
   createdBy: string;
@@ -8,7 +10,7 @@ export interface Poll {
   multiple?: boolean;
 }
 
-export type PollInput = Omit<Poll, 'id' | 'createdAt' | 'votes'>;
+export type PollInput = Omit<Poll, 'createdAt'>;
 
 export interface PollOption {
   id: string;

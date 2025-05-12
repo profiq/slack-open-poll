@@ -9,6 +9,7 @@ describe('PollDisplayBlock', () => {
       { label: 'Good', id: '1' },
       { label: 'Bad', id: '2' },
     ],
+    createdAt: '2023-01-01T00:00:00.000Z',
     createdBy: 'U123456',
     channelId: 'C123456',
     channelTimeStamp: new Date('2025-04-22T10:00:00Z').toISOString(),

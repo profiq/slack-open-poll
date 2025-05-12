@@ -5,13 +5,14 @@ import {
   Transaction,
 } from 'firebase-admin/firestore';
 import { firestore } from '../firebase';
+import { BaseDocument } from '../types/baseDocument';
 
 export const converter = <T>(): FirestoreDataConverter<T> => ({
   toFirestore: (data: PartialWithFieldValue<T>) => data ?? {},
   fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as T,
 });
 
-export class FirestoreService<T> {
+export class FirestoreService<T extends BaseDocument> {
   private collection: FirebaseFirestore.CollectionReference<T>;
 
   constructor(collectionName: string) {
@@ -25,8 +26,10 @@ export class FirestoreService<T> {
     return (await this.collection.get()).docs.map((doc) => doc.data());
   }
 
-  async create(data: T) {
-    return await this.collection.add(data);
+  async create(data: Omit<T, 'createdAt'>) {
+    const timestamp = new Date().toISOString();
+    const dataWithTimestamp = { ...data, createdAt: timestamp } as T;
+    return await this.collection.add(dataWithTimestamp);
   }
 
   async update(id: string, data: Partial<Omit<T, 'id'>>) {
@@ -57,9 +60,11 @@ export class FirestoreService<T> {
     transaction.update(docRef, data);
   }
 
-  createInTransaction(transaction: Transaction, id: string, data: T) {
+  createInTransaction(transaction: Transaction, id: string, data: Omit<T, 'createdAt'>) {
+    const timestamp = new Date().toISOString();
+    const dataWithTimestamp = { ...data, createdAt: timestamp } as T;
     const docRef = this.getDocRef(id);
-    transaction.set(docRef, data);
+    transaction.set(docRef, dataWithTimestamp);
   }
 
   deleteInTransaction(transaction: Transaction, id: string) {

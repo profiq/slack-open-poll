@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { PollService } from '../services/pollService';
 import { firestore } from '../firebase';
-import { Poll, Vote } from '../types/poll';
+import { Poll, PollInput, Vote } from '../types/poll';
 
 vi.mock('../firebase', () => ({
   firestore: {
@@ -38,6 +38,7 @@ describe('PollService', () => {
     channelId: 'channel-1',
     votes: [],
     multiple: false,
+    createdAt: '2023-01-01T00:00:00.000Z',
   };
 
   beforeEach(() => {
@@ -67,7 +68,7 @@ describe('PollService', () => {
   });
 
   describe('createPoll', () => {
-    const newPoll: Poll = {
+    const newPoll: PollInput = {
       question: 'New poll?',
       options: [
         { id: 'opt-1', label: 'Option 1' },
@@ -84,10 +85,20 @@ describe('PollService', () => {
       const mockDocRef = { id: 'new-poll-1' };
       mockCollection.add.mockReturnValue({ ...mockDoc, ...mockDocRef });
 
+      // Mock the Date.toISOString for consistent testing
+      const mockDate = '2023-01-01T00:00:00.000Z';
+      vi.spyOn(global.Date.prototype, 'toISOString').mockReturnValue(mockDate);
+
       const result = await service.create(newPoll);
 
       expect(result.id).toBe('new-poll-1');
-      expect(mockCollection.add).toHaveBeenCalledWith(newPoll);
+      expect(mockCollection.add).toHaveBeenCalledWith({
+        ...newPoll,
+        createdAt: mockDate,
+        votes: [], // If votes is initialized in the service
+      });
+
+      vi.restoreAllMocks();
     });
 
     it('should throw error if poll creation fails', async () => {

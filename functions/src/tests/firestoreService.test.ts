@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { FirestoreService } from '../services/firestoreService';
 import { firestore } from '../firebase';
+import { BaseDocument } from '../types/baseDocument';
 
 // Mock firebase
 vi.mock('../firebase', () => ({
@@ -11,7 +12,7 @@ vi.mock('../firebase', () => ({
 }));
 
 // Test interface
-interface TestDoc {
+interface TestDoc extends BaseDocument {
   id: string;
   name: string;
   value: number;
@@ -82,12 +83,20 @@ describe('FirestoreService', () => {
     });
 
     it('should create document', async () => {
-      const newDoc = { id: '1', name: 'test', value: 42 };
+      const newDoc = { id: '1', name: 'test', value: 42, createdAt: '' };
+      const mockDate = '2023-01-01T00:00:00.000Z';
+      vi.spyOn(global.Date.prototype, 'toISOString').mockReturnValue(mockDate);
+
       mockCollection.add.mockResolvedValue({ id: '1' });
 
       await service.create(newDoc);
 
-      expect(mockCollection.add).toHaveBeenCalledWith(newDoc);
+      expect(mockCollection.add).toHaveBeenCalledWith({
+        ...newDoc,
+        createdAt: mockDate,
+      });
+
+      vi.restoreAllMocks();
     });
 
     it('should update document', async () => {
@@ -162,12 +171,14 @@ describe('FirestoreService', () => {
     });
 
     it('should create document in transaction', async () => {
-      const newDoc = { id: '1', name: 'test', value: 42 };
+      const newDoc = { id: '1', name: 'test', value: 42, createdAt: '' };
+      const mockDate = '2023-01-01T00:00:00.000Z';
+      vi.spyOn(global.Date.prototype, 'toISOString').mockReturnValue(mockDate);
 
       service.createInTransaction(mockTransaction, '1', newDoc);
 
       expect(mockCollection.doc).toHaveBeenCalledWith('1');
-      expect(mockTransaction.set).toHaveBeenCalledWith(mockDoc, newDoc);
+      expect(mockTransaction.set).toHaveBeenCalledWith(mockDoc, { ...newDoc, createdAt: mockDate });
     });
 
     it('should delete document in transaction', async () => {
