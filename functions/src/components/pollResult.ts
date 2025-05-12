@@ -4,7 +4,7 @@ import { mrkdwnSection } from './mrkdwnSection';
 
 export const pollResultBlock = (poll: Poll): AnyBlock[] => {
   const pollCreatedText = `Poll created by ${poll.createdBy} on <!date^${Math.floor(
-    new Date(poll.channelTimeStamp || Date.now()).getTime() / 1000
+    new Date(poll.createdAt || Date.now()).getTime() / 1000
   )}^{date_long} at {time}|Created at: Unknown Date>`;
 
   const resultBlock: AnyBlock[] = [

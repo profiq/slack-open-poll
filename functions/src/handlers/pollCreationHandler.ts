@@ -59,13 +59,12 @@ export const handlePollCommand = async ({
 
   const pollService = new PollService();
   try {
-    const timestamp = new Date().toISOString();
     const pollRef = await pollService.create({
       question,
       options: pollOptions,
       createdBy: command.user_id,
       channelId: command.channel_id,
-      channelTimeStamp: timestamp,
+      channelTimeStamp: '',
       multiple,
     });
 
@@ -86,10 +85,18 @@ export const handlePollCommand = async ({
 
     const blocks: AnyBlock[] = pollDisplayBlock(poll, pollSnap.id);
 
-    await client.chat.postMessage({
+    const postedMessage = await client.chat.postMessage({
       channel: command.channel_id,
       text: `Poll: ${poll?.question}`,
       blocks,
+    });
+
+    if (!postedMessage.ts) {
+      log.error('Failed to get message timestamp');
+    }
+
+    await pollRef.update({
+      channelTimeStamp: postedMessage.ts,
     });
   } catch (error) {
     log.error(String(error));

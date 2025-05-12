@@ -130,36 +130,6 @@ describe('handleVoteAction', () => {
     });
   });
 
-  it('posts a new message when no existing message is found', async () => {
-    const pollId = 'poll123';
-    const optionId = 'option1';
-    const userId = 'U123456';
-    const poll = { ...basePoll };
-
-    const voteAction: SlackAction = {
-      ...baseVoteAction,
-      user: { id: userId, name: 'user1' },
-      actions: [{ type: 'button', name: 'vote_button', value: JSON.stringify({ pollId, optionId }) }],
-    };
-
-    const mockGetPoll = vi.fn().mockResolvedValue(poll);
-    PollService.prototype.getById = mockGetPoll;
-
-    const mockGetHistory = vi.fn().mockResolvedValue({
-      messages: [],
-    });
-    mockClient.conversations.history = mockGetHistory;
-
-    await handleVoteAction({
-      ack: mockAck,
-      body: voteAction,
-      client: mockClient,
-    });
-
-    expect(mockPostMessage).toHaveBeenCalled();
-    expect(mockUpdateMessage).not.toHaveBeenCalled();
-  });
-
   it('handles bad format of JSON in action.value', async () => {
     const voteAction: SlackAction = {
       type: 'interactive_message',

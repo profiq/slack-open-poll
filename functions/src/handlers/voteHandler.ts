@@ -75,14 +75,7 @@ export const handleVoteAction = async ({
             return;
           }
 
-          log.debug('Fetching poll message history', { channelId, messageTs } as LoggerContext);
-          const history = await client.conversations.history({
-            channel: channelId,
-            latest: messageTs,
-            limit: 1,
-          });
-
-          if (!history.messages || history.messages.length === 0) {
+          if (!messageTs) {
             log.info('No message found at this timestamp, posting new poll', { messageTs } as LoggerContext);
             await client.chat.postMessage({
               channel: channelId,
@@ -92,20 +85,14 @@ export const handleVoteAction = async ({
             return;
           }
 
-          const historyTs = history.messages[0].ts;
-          if (!historyTs) {
-            log.warn('Message timestamp not found in history');
-            return;
-          }
-
           log.info('Updating existing poll message', {
             pollId,
-            historyTs,
+            messageTs,
             channelId,
           } as LoggerContext);
           await client.chat.update({
             channel: channelId,
-            ts: historyTs,
+            ts: messageTs,
             text: `Poll: ${poll.question}`,
             blocks: updatedBlocks,
           });

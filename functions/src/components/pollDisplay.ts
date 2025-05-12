@@ -8,7 +8,8 @@ export const pollDisplayBlock = (poll: Poll | undefined, pollId: string): AnyBlo
     return [mrkdwnSection('error')];
   }
 
-  const formattedTime = `<!date^${Math.floor(new Date(poll.channelTimeStamp || Date.now()).getTime() / 1000)}^{date_long} at {time}|Created at: Unknown Date>`;
+  const formattedTime = `<!date^${Math.floor(new Date(poll.createdAt || Date.now()).getTime() / 1000)}^{date_long} at {time}|Created at: Unknown Date>`;
+
   const numberEmojis = [
     ':one:',
     ':two:',
