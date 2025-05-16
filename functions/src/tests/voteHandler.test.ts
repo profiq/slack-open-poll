@@ -1,25 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { handleVoteAction } from '../handlers/voteHandler';
 import { PollService } from '../services/pollService';
-import { App, SlackAction } from '@slack/bolt';
+import { SlackAction } from '@slack/bolt';
 import { pollDisplayBlock } from '../components/pollDisplay';
+import { WebClient } from '@slack/web-api';
 
 vi.mock('../services/pollService');
 vi.mock('../components/pollDisplay');
 
 const mockPostMessage = vi.fn();
 const mockUpdateMessage = vi.fn();
-const mockGetHistory = vi.fn();
+const mockPostEphemeral = vi.fn();
 
 const mockClient = {
   chat: {
+    postEphemeral: mockPostEphemeral,
     postMessage: mockPostMessage,
     update: mockUpdateMessage,
   },
   conversations: {
-    history: mockGetHistory,
+    history: vi.fn(),
   },
-} as unknown as App['client'];
+} as unknown as WebClient;
 
 const mockAck = vi.fn();
 
@@ -94,15 +96,6 @@ describe('handleVoteAction', () => {
       },
     ]);
 
-    const mockGetHistory = vi.fn().mockResolvedValue({
-      messages: [
-        {
-          ts: '1234567890.123456',
-        },
-      ],
-    });
-    mockClient.conversations.history = mockGetHistory;
-
     await handleVoteAction({
       ack: mockAck,
       body: voteAction,
@@ -114,6 +107,182 @@ describe('handleVoteAction', () => {
 
     expect(mockPostMessage).not.toHaveBeenCalled();
 
+    expect(mockUpdateMessage).toHaveBeenCalledWith({
+      channel: poll.channelId,
+      ts: poll.channelTimeStamp,
+      text: `Poll: ${poll.question}`,
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `Poll: ${poll.question}`,
+          },
+        },
+      ],
+    });
+  });
+
+  it('handles multiple votes with maxVote given', async () => {
+    const pollId = 'P123456';
+    const optionId = '2';
+    const userId = 'U123456';
+
+    const poll = {
+      ...basePoll,
+      multiple: true,
+      maxVotes: 1,
+      votes: [{ userId, optionId: '1' }],
+    };
+
+    const voteAction: SlackAction = {
+      ...baseVoteAction,
+      user: { id: userId, name: 'user1' },
+      actions: [
+        {
+          type: 'button',
+          name: 'vote_button',
+          value: JSON.stringify({ pollId, optionId }),
+        },
+      ],
+    };
+
+    const mockGetPoll = vi.fn().mockResolvedValue(poll);
+    const mockVote = vi.fn().mockResolvedValue(true);
+
+    PollService.prototype.getById = mockGetPoll;
+    PollService.prototype.vote = mockVote;
+
+    vi.mocked(pollDisplayBlock).mockReturnValue([
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `Poll: ${poll.question}`,
+        },
+      },
+    ]);
+
+    await handleVoteAction({
+      ack: mockAck,
+      body: voteAction,
+      client: mockClient,
+    });
+
+    expect(mockAck).toHaveBeenCalled();
+    expect(mockGetPoll).toHaveBeenCalledWith(pollId);
+    expect(mockVote).toHaveBeenCalledWith(pollId, { userId, optionId });
+    expect(mockUpdateMessage).toHaveBeenCalledWith({
+      channel: poll.channelId,
+      ts: poll.channelTimeStamp,
+      text: `Poll: ${poll.question}`,
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `Poll: ${poll.question}`,
+          },
+        },
+      ],
+    });
+  });
+
+  it('rejects vote when user exceeds maxVotes and sends ephemeral error', async () => {
+    const pollId = 'P123456';
+    const userId = 'U123456';
+    const optionId = '3';
+
+    const poll = {
+      ...basePoll,
+      multiple: true,
+      maxVotes: 1,
+      votes: [{ userId, optionId: '1' }],
+    };
+
+    const voteAction: SlackAction = {
+      ...baseVoteAction,
+      user: { id: userId, name: 'user1' },
+      channel: { id: 'C123456', name: 'general' },
+      actions: [
+        {
+          type: 'button',
+          name: 'vote_button',
+          value: JSON.stringify({ pollId, optionId }),
+        },
+      ],
+    };
+
+    const mockGetPoll = vi.fn().mockResolvedValue(poll);
+    const mockVote = vi.fn().mockRejectedValue(new Error('Maximum number of votes reached'));
+
+    PollService.prototype.getById = mockGetPoll;
+    PollService.prototype.vote = mockVote;
+
+    await handleVoteAction({
+      ack: mockAck,
+      body: voteAction,
+      client: mockClient,
+    });
+
+    expect(mockAck).toHaveBeenCalled();
+    expect(mockGetPoll).toHaveBeenCalledWith(pollId);
+    expect(mockVote).toHaveBeenCalledWith(pollId, { userId, optionId });
+
+    expect(mockPostEphemeral).toHaveBeenCalledWith({
+      channel: 'C123456',
+      user: userId,
+      text: 'Maximum number of votes reached',
+    });
+
+    expect(mockUpdateMessage).not.toHaveBeenCalled();
+  });
+
+  it('adds a vote with maxVotes given', async () => {
+    const pollId = 'P123456';
+    const optionId = '2';
+    const userId = 'U123456';
+
+    const poll = {
+      ...basePoll,
+      multiple: true,
+      maxVotes: 2,
+    };
+
+    const voteAction: SlackAction = {
+      ...baseVoteAction,
+      user: { id: userId, name: 'user1' },
+      actions: [
+        {
+          type: 'button',
+          name: 'vote_button',
+          value: JSON.stringify({ pollId, optionId }),
+        },
+      ],
+    };
+
+    const mockGetPoll = vi.fn().mockResolvedValue(poll);
+    const mockVote = vi.fn().mockResolvedValue(true);
+
+    PollService.prototype.getById = mockGetPoll;
+    PollService.prototype.vote = mockVote;
+
+    vi.mocked(pollDisplayBlock).mockReturnValue([
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `Poll: ${poll.question}`,
+        },
+      },
+    ]);
+
+    await handleVoteAction({ ack: mockAck, body: voteAction, client: mockClient });
+
+    expect(mockAck).toHaveBeenCalled();
+    expect(mockGetPoll).toHaveBeenCalledWith(pollId);
+    expect(mockVote).toHaveBeenCalledWith(pollId, { userId, optionId });
+    expect(mockPostMessage).not.toHaveBeenCalled();
     expect(mockUpdateMessage).toHaveBeenCalledWith({
       channel: poll.channelId,
       ts: poll.channelTimeStamp,

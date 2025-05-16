@@ -56,30 +56,44 @@ export const handleVoteAction = async ({
 
           const pollService = new PollService();
 
-          log.debug('Submiting vote', { pollId, optionId } as LoggerContext);
-          await pollService.vote(pollId, vote);
-
           const poll = await pollService.getById(pollId);
           if (!poll) {
             log.warn('Poll not found', { pollId });
             throw new Error('Poll not found');
           }
 
-          const updatedBlocks = pollDisplayBlock(poll, pollId);
+          try {
+            log.debug('Submitting vote', { pollId, optionId } as LoggerContext);
+            await pollService.vote(pollId, vote);
+          } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to register vote';
+            log.warn('Vote rejected', { pollId, optionId, userId, errorMessage } as LoggerContext);
 
-          const channelId = poll.channelId;
-          const messageTs = poll.channelTimeStamp;
+            await client.chat.postEphemeral({
+              channel: body.channel?.id ?? poll.channelId,
+              user: userId,
+              text: errorMessage,
+            });
 
-          if (!messageTs || typeof messageTs !== 'string') {
-            log.error('Missing or invalid message timestamp', { messageTs } as LoggerContext);
             return;
           }
+
+          const updatedPoll = await pollService.getById(pollId);
+          if (!updatedPoll) {
+            log.warn('Poll not found after voting', { pollId });
+            throw new Error('Poll not found after voting');
+          }
+
+          const updatedBlocks = pollDisplayBlock(updatedPoll, pollId);
+
+          const channelId = updatedPoll.channelId;
+          const messageTs = updatedPoll.channelTimeStamp;
 
           if (!messageTs) {
             log.info('No message found at this timestamp, posting new poll', { messageTs } as LoggerContext);
             await client.chat.postMessage({
               channel: channelId,
-              text: `Poll: ${poll.question}`,
+              text: `Poll: ${updatedPoll.question}`,
               blocks: updatedBlocks,
             });
             return;
@@ -93,7 +107,7 @@ export const handleVoteAction = async ({
           await client.chat.update({
             channel: channelId,
             ts: messageTs,
-            text: `Poll: ${poll.question}`,
+            text: `Poll: ${updatedPoll.question}`,
             blocks: updatedBlocks,
           });
         }

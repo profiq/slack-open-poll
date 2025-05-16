@@ -28,14 +28,24 @@ export const pollDisplayBlock = (poll: Poll | undefined, pollId: string): AnyBlo
     elements: [
       {
         type: 'mrkdwn',
-        text: 'You can select more than one option',
+        text: 'You can select all options',
+      },
+    ],
+  };
+
+  const maxVotesBlock: AnyBlock = {
+    type: 'context',
+    elements: [
+      {
+        type: 'mrkdwn',
+        text: `You can select up to ${poll.maxVotes} options`,
       },
     ],
   };
 
   const displayBlock: AnyBlock[] = [
     mrkdwnSection('default', poll.question),
-    ...(poll.multiple ? [multiChoiceBlock] : []),
+    ...(poll.multiple ? [poll.maxVotes === 10 ? multiChoiceBlock : maxVotesBlock] : []),
     {
       type: 'divider',
     },

@@ -8,6 +8,7 @@ export interface Poll extends BaseDocument {
   channelId: string;
   votes?: Vote[];
   multiple?: boolean;
+  maxVotes?: number;
 }
 
 export type PollInput = Omit<Poll, 'createdAt'>;

@@ -175,4 +175,68 @@ describe('handlePollCommand', () => {
       })
     );
   });
+
+  it('sets multiple to true if parsedInt > 10 and keeps maxVotes 10', async () => {
+    const text = 'limit 13 "Question" apple, banana, pear';
+
+    const mockGet = vi.fn().mockResolvedValue({
+      data: () => ({
+        question: 'Question',
+        options: [
+          { id: '1', label: 'apple' },
+          { id: '2', label: 'banana' },
+          { id: '3', label: 'pear' },
+        ],
+        multiple: true,
+        maxVotes: 1,
+      }),
+      id: 'mockPollId',
+    });
+
+    const mockCreate = vi.fn().mockResolvedValue({
+      get: mockGet,
+      update: vi.fn().mockResolvedValue(undefined),
+    });
+    PollService.prototype.create = mockCreate;
+
+    vi.mocked(pollDisplayBlock).mockReturnValue([
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: 'Poll: Question',
+        },
+      },
+    ] as AnyBlock[]);
+
+    await handlePollCommand({
+      ...baseCommand,
+      command: {
+        ...baseCommand.command,
+        text,
+      },
+      client: mockClient,
+    } as SlackCommandMiddlewareArgs & AllMiddlewareArgs);
+
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        question: 'Question',
+        options: [
+          { id: expect.stringMatching(/.+/), label: 'apple' },
+          { id: expect.stringMatching(/.+/), label: 'banana' },
+          { id: expect.stringMatching(/.+/), label: 'pear' },
+        ],
+        multiple: true,
+        maxVotes: 1,
+      })
+    );
+
+    expect(mockPostMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: baseCommand.command!.channel_id,
+        text: `Poll: Question`,
+        blocks: expect.arrayContaining([]),
+      })
+    );
+  });
 });

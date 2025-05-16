@@ -216,7 +216,8 @@ Added functionality for multi-choice polls
 
 Parses poll question and options from command text
 Checks for keywords before question like `multiple` for multi-choice polls
-Validates number of options (2-10)
+Has ability to choose maximum amount of votes
+Validates number of options using keyword `limit` and a number (2-10)
 Creates a poll using the PollService
 Returns a block message in the Slack channel with the question, options and buttons
 Handles errors if the command format is invalid or if the poll creation fails
@@ -235,6 +236,10 @@ Example:
 Example with multi-choice:
 ```
 /poll multiple "When would be the right time for a meeting?" 10 AM, 2 PM, 4 PM, 6 PM 
+```
+Example with maximum amount of votes:
+```
+/poll limit 2 "Which fruits do you like the most?" banana, apple, orange, lemon, pear, kiwi
 ```
 
 ## Vote Handler
