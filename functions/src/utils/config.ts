@@ -10,6 +10,7 @@ export const config = cleanEnv(process.env, {
   SLACK_BOT_TOKEN: str(),
   NODE_ENV: str({ choices: ['development', 'test', 'production'] }),
   FIRESTORE_EMULATOR_HOST: str({ default: undefined }),
+  DEFAULT_FUNCTIONS_LOCATION: str(),
 });
 
 // Export typed configuration object
