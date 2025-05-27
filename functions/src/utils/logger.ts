@@ -1,5 +1,5 @@
 import * as logger from 'firebase-functions/logger';
-import { isProduction } from './utils';
+import config from './config';
 
 interface LoggerContext {
   requestId?: string;
@@ -11,68 +11,62 @@ interface LoggerContext {
   duration?: number;
 }
 
-/*
-Production enviroment logs - only WARN and ERROR
-Every other enviroment logs - everything
-*/
+enum LogLevel {
+  DEBUG = 0,
+  INFO = 1,
+  WARN = 2,
+  ERROR = 3,
+}
+
+const ENV_LOG_LEVELS: Record<string, LogLevel> = {
+  production: LogLevel.WARN,
+  development: LogLevel.DEBUG,
+  test: LogLevel.DEBUG,
+};
+
+const getLogLevel = (): LogLevel => {
+  return ENV_LOG_LEVELS[config.NODE_ENV];
+};
 
 class Logger {
   private context: LoggerContext;
+  private level: LogLevel;
 
   constructor(context: LoggerContext = {}) {
     this.context = context;
+    this.level = getLogLevel();
   }
 
   debug(message: string, additionalContext: LoggerContext = {}) {
-    if (isProduction()) return;
-    const mergedContext = {
-      ...this.context,
-      ...additionalContext,
-    };
+    if (this.level > LogLevel.DEBUG) return;
 
-    this.log('DEBUG', message, mergedContext);
+    this.log(LogLevel.DEBUG, message, this.mergeContext(additionalContext));
   }
 
   info(message: string, additionalContext: LoggerContext = {}) {
-    if (isProduction()) return;
-    const mergedContext = {
-      ...this.context,
-      ...additionalContext,
-    };
+    if (this.level > LogLevel.INFO) return;
 
-    this.log('INFO', message, mergedContext);
+    this.log(LogLevel.INFO, message, this.mergeContext(additionalContext));
   }
 
   warn(message: string, additionalContext: LoggerContext = {}) {
-    const mergedContext = {
-      ...this.context,
-      ...additionalContext,
-    };
+    if (this.level > LogLevel.WARN) return;
 
-    this.log('WARN', message, mergedContext);
+    this.log(LogLevel.WARN, message, this.mergeContext(additionalContext));
   }
 
   error(message: string | Error, additionalContext: LoggerContext = {}) {
+    if (this.level > LogLevel.ERROR) return;
+
     const isError = message instanceof Error;
     const logMessage = isError ? message.message : message;
     const errorInfo = isError ? { name: message.name, stack: message.stack } : {};
 
-    const errorContext = {
-      ...this.context,
-      ...additionalContext,
-      ...errorInfo,
-    };
-
-    this.log('ERROR', logMessage, errorContext);
+    this.log(LogLevel.ERROR, logMessage, this.mergeContext({ ...additionalContext, ...errorInfo }));
   }
 
   withContext(additionalContext: LoggerContext): Logger {
-    const mergedContext = {
-      ...this.context,
-      ...additionalContext,
-    };
-
-    return new Logger(mergedContext);
+    return new Logger(this.mergeContext(additionalContext));
   }
 
   startTimer(label: string): number {
@@ -87,18 +81,33 @@ class Logger {
     this.info(`Timer ended for ${label}`, { duration: dur });
   }
 
-  private log(level: string, message: string, context: LoggerContext) {
-    const logEntry = { level, message, context };
+  private log(level: LogLevel, message: string, context: LoggerContext) {
+    const logEntry = {
+      level: LogLevel[level],
+      message,
+      context,
+    };
 
-    if (level === 'INFO') {
-      logger.info(JSON.stringify(logEntry));
-    } else if (level === 'ERROR') {
-      logger.error(JSON.stringify(logEntry));
-    } else if (level === 'DEBUG') {
-      logger.debug(JSON.stringify(logEntry));
-    } else if (level === 'WARN') {
-      logger.warn(JSON.stringify(logEntry));
+    const output = JSON.stringify(logEntry);
+
+    switch (level) {
+      case LogLevel.DEBUG:
+        logger.debug(output);
+        break;
+      case LogLevel.INFO:
+        logger.info(output);
+        break;
+      case LogLevel.WARN:
+        logger.warn(output);
+        break;
+      case LogLevel.ERROR:
+        logger.error(output);
+        break;
     }
+  }
+
+  private mergeContext(additional: LoggerContext): LoggerContext {
+    return { ...this.context, ...additional };
   }
 }
 

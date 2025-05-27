@@ -5,9 +5,9 @@ import eslintConfigPrettier from 'eslint-config-prettier/flat';
 
 export default tseslint.config(
   eslint.configs.recommended,
+  google,
   tseslint.configs.recommended,
   tseslint.configs.stylistic,
-  google,
   eslintConfigPrettier,
   {
     files: ['**/*.ts'],
