@@ -59,6 +59,23 @@ export const pollDisplayBlock = (poll: Poll | undefined, pollId: string): AnyBlo
     ],
   };
 
+  const openButtonBlock: AnyBlock = {
+    type: 'actions',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Open',
+          emoji: true,
+        },
+        style: 'primary',
+        action_id: 'open_poll_form',
+        value: pollId,
+      },
+    ],
+  };
+
   const displayBlock: AnyBlock[] = [
     mrkdwnSection('default', poll.question),
     ...(poll.multiple ? [poll.maxVotes === 10 ? multiChoiceBlock : maxVotesBlock] : []),
@@ -86,6 +103,7 @@ export const pollDisplayBlock = (poll: Poll | undefined, pollId: string): AnyBlo
         };
       }),
     ...(poll.custom ? [{ type: 'divider' }, customBlock] : []),
+    openButtonBlock,
     {
       type: 'context',
       elements: [

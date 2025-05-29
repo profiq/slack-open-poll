@@ -4,6 +4,7 @@ import { handlePollCommand } from './handlers/pollCreationHandler';
 import { handleVoteAction } from './handlers/voteHandler';
 import { handleFormCreation } from './handlers/customFormHandler';
 import { handleCustomOptionSubmit } from './handlers/customOptionSubmitHandler';
+import { handleOpenButton } from './handlers/openButtonHandler';
 
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
@@ -41,5 +42,8 @@ app.action('open_custom_form', handleFormCreation);
 
 // Submits the option given in form, stores option in Firestore and updates Slack message
 app.view('custom_option_submit', handleCustomOptionSubmit);
+
+// Opens form that has buttons for voted options and poll settings
+app.action('open_poll_form', handleOpenButton);
 
 export const slackReceiver = receiver;
