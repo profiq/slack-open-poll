@@ -2,6 +2,8 @@ import { App, ExpressReceiver } from '@slack/bolt';
 import config from './utils/config';
 import { handlePollCommand } from './handlers/pollCreationHandler';
 import { handleVoteAction } from './handlers/voteHandler';
+import { handleFormCreation } from './handlers/customFormHandler';
+import { handleCustomOptionSubmit } from './handlers/customOptionSubmitHandler';
 
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
@@ -31,6 +33,13 @@ app.message('hello', async ({ message, say }) => {
 // Parses dynamic input, Creates a poll and Stores data in Firestore
 app.command('/poll', handlePollCommand);
 
+// Handles clicking vote button, adds increments vote count for clicked option and updates Slack message
 app.action(/^vote_.*/, handleVoteAction);
+
+// Opens form when button for adding custom option clicked
+app.action('open_custom_form', handleFormCreation);
+
+// Submits the option given in form, stores option in Firestore and updates Slack message
+app.view('custom_option_submit', handleCustomOptionSubmit);
 
 export const slackReceiver = receiver;

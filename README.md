@@ -212,16 +212,42 @@ Handler processes `/poll` commands from users, validates the input, creates a po
 Returns the poll message with options and buttons for voting
 Added functionality for multi-choice polls
 
-### Funcionality
+#### Funcionality
 
 Parses poll question and options from command text
-Checks for keywords before question like `multiple` for multi-choice polls
-Has ability to choose maximum amount of votes
-Validates number of options using keyword `limit` and a number (2-10)
+Adds a lot of functionality by using flags
 Creates a poll using the PollService
 Returns a block message in the Slack channel with the question, options and buttons
 Handles errors if the command format is invalid or if the poll creation fails
 When errors happen, the slash command is responded by chat.postEphemeral which is shown just to the user that tried to create the poll
+
+### Flags
+
+You can use flags before typing the question to customise the poll usage:
+- `multiple`:
+  - creates a poll that enables having multiple options
+  - ```
+    /poll multiple "Question"...
+    ```
+- `limit`:
+  - upgraded multiple poll that enables maximum of votes given
+  - ```
+    /poll limit 2 "Question"...
+    ```
+  - creates a poll that enables maximum of 2 votes
+  - when trying to add vote above limit responds with ephemeral message
+- `custom`:
+  - creates a poll that enables users to add custom option
+  - creates a button at the bottom of the poll
+  - when clicked it opens a form where you can type your new option and submit it
+  - ```
+    /poll custom "Question"...
+    ```
+Tip: you can combine flags
+```
+/poll custom limit 2 "Question"...
+```
+
 
 ### Usage and Example
 
@@ -232,14 +258,6 @@ Template:
 Example:
 ```
 /poll "When would be the right time for a meeting?" 10 AM, 2 PM, 4 PM, 6 PM 
-```
-Example with multi-choice:
-```
-/poll multiple "When would be the right time for a meeting?" 10 AM, 2 PM, 4 PM, 6 PM 
-```
-Example with maximum amount of votes:
-```
-/poll limit 2 "Which fruits do you like the most?" banana, apple, orange, lemon, pear, kiwi
 ```
 
 ## Vote Handler

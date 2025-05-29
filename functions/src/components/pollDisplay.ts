@@ -43,30 +43,49 @@ export const pollDisplayBlock = (poll: Poll | undefined, pollId: string): AnyBlo
     ],
   };
 
+  const customBlock: AnyBlock = {
+    type: 'actions',
+    elements: [
+      {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Add custom option',
+          emoji: true,
+        },
+        action_id: 'open_custom_form',
+        value: pollId,
+      },
+    ],
+  };
+
   const displayBlock: AnyBlock[] = [
     mrkdwnSection('default', poll.question),
     ...(poll.multiple ? [poll.maxVotes === 10 ? multiChoiceBlock : maxVotesBlock] : []),
     {
       type: 'divider',
     },
-    ...poll.options.map((option, index) => {
-      const votedUsers = poll.votes?.filter((vote) => vote.optionId === option.id);
+    ...poll.options
+      .filter((option) => !option.deleted)
+      .map((option, index) => {
+        const votedUsers = poll.votes?.filter((vote) => vote.optionId === option.id);
 
-      const userMentions = votedUsers?.map((vote) => `<@${vote.userId}>`) || [];
-      const emoji = numberEmojis[index];
+        const userMentions = votedUsers?.map((vote) => `<@${vote.userId}>`) || [];
+        const emoji = numberEmojis[index];
 
-      const voteCount = votedUsers?.length ?? 0;
+        const voteCount = votedUsers?.length ?? 0;
 
-      let optionText = `${emoji} ${option.label} \n ${userMentions.join(' ')}`;
-      if (voteCount > 0) {
-        optionText = `${emoji} ${option.label} \`${voteCount}\` \n ${userMentions.join(' ')}`;
-      }
+        let optionText = `${emoji} ${option.label} \n ${userMentions.join(' ')}`;
+        if (voteCount > 0) {
+          optionText = `${emoji} ${option.label} \`${voteCount}\` \n ${userMentions.join(' ')}`;
+        }
 
-      return {
-        ...mrkdwnSection('default', optionText),
-        accessory: button(emoji, pollId, index, option.id),
-      };
-    }),
+        return {
+          ...mrkdwnSection('default', optionText),
+          accessory: button(emoji, pollId, index, option.id),
+        };
+      }),
+    ...(poll.custom ? [{ type: 'divider' }, customBlock] : []),
     {
       type: 'context',
       elements: [

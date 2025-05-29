@@ -37,6 +37,7 @@ describe('handleVoteAction', () => {
     options: [
       { id: '1', label: 'YES' },
       { id: '2', label: 'NO' },
+      { id: '3', label: 'MAYBE' },
     ],
   };
 
@@ -70,7 +71,7 @@ describe('handleVoteAction', () => {
 
   it('successfully handles a vote action and updates the poll', async () => {
     const pollId = 'P123456';
-    const optionId = 'option1';
+    const optionId = '1';
     const userId = 'U123456';
     const poll = { ...basePoll };
 

@@ -29,7 +29,7 @@ export const handlePollCommand = async ({
     return;
   }
 
-  const { question, options, multiple, maxVotes } = parsed;
+  const { question, options, multiple, maxVotes, custom } = parsed;
 
   if (options.length < 2) {
     log.warn('Creating poll failed: Less than 2 options provided');
@@ -67,6 +67,7 @@ export const handlePollCommand = async ({
       channelTimeStamp: '',
       multiple,
       maxVotes,
+      custom,
     });
 
     const pollSnap = await pollRef.get();
@@ -112,14 +113,21 @@ export const handlePollCommand = async ({
   }
 };
 
-function parseCommand(
-  text: string
-): { question: string; options: string[]; flags: string[]; multiple: boolean; maxVotes?: number } | null {
+function parseCommand(text: string): {
+  question: string;
+  options: string[];
+  flags: string[];
+  multiple: boolean;
+  maxVotes?: number;
+  custom?: boolean;
+} | null {
   const quoteIndex = text.indexOf('"');
 
   const keyWordPart = text.slice(0, quoteIndex).trim();
 
   let isMultiple = keyWordPart.includes('multiple');
+
+  const isCustom = keyWordPart.includes('custom') || keyWordPart.includes('-c');
 
   const maxVotesMatch = keyWordPart.match(/limit\s+(\d{1,2})/i);
   let maxVotes = 1;
@@ -158,5 +166,6 @@ function parseCommand(
     flags,
     multiple: isMultiple,
     maxVotes: maxVotes,
+    custom: isCustom,
   };
 }

@@ -62,6 +62,19 @@ export const handleVoteAction = async ({
             throw new Error('Poll not found');
           }
 
+          const option = poll.options.find((o) => o.id === optionId);
+          if (!option || option.deleted) {
+            log.warn(`Option not found or deleted: ${optionId}`);
+
+            await client.chat.postEphemeral({
+              channel: body.channel?.id ?? poll.channelId,
+              user: userId,
+              text: 'This option is no longer available for voting.',
+            });
+
+            throw new Error(`Option not found or deleted: ${optionId}`);
+          }
+
           try {
             log.debug('Submitting vote', { pollId, optionId } as LoggerContext);
             await pollService.vote(pollId, vote);
