@@ -1,6 +1,6 @@
 import { PollService } from '../services/pollService';
 import { pollDisplayBlock } from '../components/pollDisplay';
-import { mrkdwnSection } from '../components/mrkdwnSection';
+import { mrkdwnSection, pollHelpMessage, pollInfoMessage } from '../components/mrkdwnSection';
 import { AnyBlock } from '@slack/types';
 import { AllMiddlewareArgs, SlackCommandMiddlewareArgs } from '@slack/bolt';
 import { Logger } from '../utils/logger';
@@ -29,7 +29,24 @@ export const handlePollCommand = async ({
     return;
   }
 
-  const { question, options, multiple, maxVotes, custom } = parsed;
+  const { question, options, multiple, maxVotes, custom, help, info } = parsed;
+
+  if (help) {
+    await client.chat.postEphemeral({
+      channel: command.channel_id,
+      user: command.user_id,
+      blocks: pollHelpMessage(),
+    });
+    return;
+  }
+  if (info) {
+    await client.chat.postEphemeral({
+      channel: command.channel_id,
+      user: command.user_id,
+      blocks: pollInfoMessage(),
+    });
+    return;
+  }
 
   if (options.length < 2) {
     log.warn('Creating poll failed: Less than 2 options provided');
@@ -120,10 +137,34 @@ function parseCommand(text: string): {
   multiple: boolean;
   maxVotes?: number;
   custom?: boolean;
+  help: boolean;
+  info: boolean;
 } | null {
   const quoteIndex = text.indexOf('"');
 
   const keyWordPart = text.slice(0, quoteIndex).trim();
+
+  const trimmed = text.trim().toLowerCase();
+  if (trimmed === 'help') {
+    return {
+      question: '',
+      options: [],
+      flags: [],
+      multiple: false,
+      help: true,
+      info: false,
+    };
+  }
+  if (trimmed === 'info') {
+    return {
+      question: '',
+      options: [],
+      flags: [],
+      multiple: false,
+      help: false,
+      info: true,
+    };
+  }
 
   let isMultiple = keyWordPart.includes('multiple');
 
@@ -167,5 +208,7 @@ function parseCommand(text: string): {
     multiple: isMultiple,
     maxVotes: maxVotes,
     custom: isCustom,
+    help: false,
+    info: false,
   };
 }
