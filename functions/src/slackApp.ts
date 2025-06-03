@@ -6,6 +6,7 @@ import { handleFormCreation } from './handlers/customFormHandler';
 import { handleCustomOptionSubmit } from './handlers/customOptionSubmitHandler';
 import { handleOpenButton } from './handlers/openButtonHandler';
 import { handleUserVotesButton } from './handlers/userVotesButtonHandler';
+import { handlePollSettingsButton } from './handlers/pollSettingsHandler';
 
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
@@ -49,5 +50,8 @@ app.action('open_poll_form', handleOpenButton);
 
 // Opens form that shows user's votes
 app.action('your_votes', handleUserVotesButton);
+
+// Opens a form that has 2 buttons - delete poll & close poll
+app.action('poll_settings', handlePollSettingsButton);
 
 export const slackReceiver = receiver;
