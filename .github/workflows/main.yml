@@ -50,6 +50,7 @@ jobs:
       SLACK_BOT_TOKEN: test-token
       SLACK_SIGNING_SECRET: test-secret
       FIRESTORE_EMULATOR_HOST: localhost:8080
+      DEFAULT_FUNCTIONS_LOCATION: europe-west3
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
