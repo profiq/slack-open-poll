@@ -20,6 +20,10 @@ export class PollService extends FirestoreService<Poll> {
         throw new Error(`Poll with ID ${pollId} not found`);
       }
 
+      if (poll.closed) {
+        throw new Error('Poll is closed');
+      }
+
       const votes = poll.votes || [];
       const isMultiple = poll.multiple === true;
       const userVotes = votes.filter((v) => v.userId === vote.userId);

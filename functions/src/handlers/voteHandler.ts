@@ -62,6 +62,17 @@ export const handleVoteAction = async ({
             throw new Error('Poll not found');
           }
 
+          if (poll.closed) {
+            log.debug('Poll is closed, cannot insert new vote');
+
+            await client.chat.postEphemeral({
+              channel: body.channel?.id ?? poll.channelId,
+              user: userId,
+              text: 'This poll has been closed',
+            });
+            return;
+          }
+
           const option = poll.options.find((o) => o.id === optionId);
           if (!option || option.deleted) {
             log.warn(`Option not found or deleted: ${optionId}`);

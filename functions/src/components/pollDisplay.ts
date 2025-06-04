@@ -76,9 +76,20 @@ export const pollDisplayBlock = (poll: Poll | undefined, pollId: string): AnyBlo
     ],
   };
 
+  const isClosedBlock: AnyBlock = {
+    type: 'context',
+    elements: [
+      {
+        type: 'mrkdwn',
+        text: 'Voting has ended for this poll',
+      },
+    ],
+  };
+
   const displayBlock: AnyBlock[] = [
     mrkdwnSection('default', poll.question),
     ...(poll.multiple ? [poll.maxVotes === 10 ? multiChoiceBlock : maxVotesBlock] : []),
+    ...(poll.closed ? [{ type: 'divider ' }, isClosedBlock] : []),
     {
       type: 'divider',
     },
