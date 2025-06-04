@@ -1,6 +1,6 @@
-# 🗳️ OpenPoll – TypeScript Open Source Slack Poll App
+# 🗳️ Open Poll – TypeScript Open Source Slack Poll App
 
-**OpenPoll** is an open-source Slack-integrated app that lets your team quickly create and run polls using a `/poll` command. Inspired by [Simple Poll](https://www.simplepoll.rocks/), OpenPoll is built in **TypeScript**, runs on **Firebase Cloud Functions**, and is fully customizable for self-hosting or development learning.
+**Open Poll** is an open-source Slack-integrated app that lets your team quickly create and run polls using a `/poll` command. Inspired by [Simple Poll](https://www.simplepoll.rocks/), Open Poll is built in **TypeScript**, runs on **Firebase Cloud Functions**, and is fully customizable for self-hosting or development learning.
 
 ---
 
@@ -83,143 +83,173 @@ sequenceDiagram
 ---
 
 
-## 🚀 Running OpenPoll Locally
+## 🚀 Running Open Poll Locally
 
 > 🧠 First, ensure you have [Node.js](https://nodejs.org/) and [Firebase CLI](https://firebase.google.com/docs/cli) installed.
+
+
+
+
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-org/openpoll.git
-cd openpoll
+git clone https://github.com/profiq/slack-open-poll.git
+cd slack-open-poll
 ```
 
-### 2. Set up Firebase
-
-```bash
-npm install -g firebase-tools
-firebase login
-```
 
 ### 3. Create a `.env` file with your configuration
 
+- Create this file in `/functions` directory
 ```env
 SLACK_SIGNING_SECRET=your_signing_secret
 SLACK_BOT_TOKEN=xoxb-your-bot-token
 NODE_ENV=development
 FIRESTORE_EMULATOR_HOST=localhost:8080
 ```
+You are going to get `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN` in step number 3
 
-You can get `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN` in step number 6
 
-### 4. Install dependencies and start the development server
+### 3. First Slack App Configuration
 
-```bash
-cd functions
-npm install
-npm run serve:watch
-```
-
-### 5. Expose your local app using `ngrok` (or similar) for Slack to reach it
-
-```bash
-npx ngrok http 5001
-```
-
-Copy the HTTPS URL provided by ngrok (e.g., `https://abc123.ngrok.io`).
-
-### 6. Configure your Slack App
-
-- Go to [https://api.slack.com/apps](https://api.slack.com/apps)
-- Create a new app or select an existing one
-- In **Features** open **Event Subscriptions** and select **On**
-- Into Request URL paste your ngrok URL and wait for verification
-- Open **Slash Commands** and **Create New Command** and fill in the details:
-  - Command: '/poll'
-  - Request URL: your ngrok URL + endpoint (e.g., `https://abc123.ngrok.io/slack/events`)
-  - Optional: fill Short Description and Usage Hint
-  - **Save** in the bottom-right corner
-- In **Interactivity** select **On** and set the same URL
-- In **OAuth & Permissions** scroll down to **Scopes** and assign following scopes:
-  - `channels:history`
-  - `chat:write`
-  - `commands`
-  - `incoming-webhook`
-- Now update your .env file:
-  - Get `SLACK_SIGNING_SECRET` in **Settings** and **Basic Information**
-  - Get `SLACK_BOT_TOKEN` in **Features** and **OAuth & Permisions** in OAuth Tokens
-- Install the app into your workspace under the token you just got
-
----
-
-## Firebase Firestone Database
-
-This module provides a database setup for future usage for a Slack Bolt app
-
-### Usage
-```ts
-import DatabaseService from './databaseService';
-const db = DatabaseService.getInstance();
-```
-
-### Local testing with emulator
-get to the root of the project - /open-poll
-firebase emulators:start --only firestore
-
-### For future testing and usage we will need to
-add into .env firebase service key and development:
-```ini
-FIREBASE_SERVICE_ACCOUNT_KEY=<your-key>
-NODE_ENV=development
-```
-
-## Usage of Logger
-
-Basic setup:
-```ts
-import { Logger } from './utils/logger';
-const logger = new Logger({ requestId: 'r-123' });
-logger.info('Logger started');
-```
-User context:
-```ts
-loger.info('User did something', {
-  userId: 'u-id',
-  workspaceId: 'w-id',
-});
-```
-Using withContext:
-```ts
-const userLogger = logger.withContext({
-  userId: 'u-id',
-  workspaceId: 'w-id',
-});
-userLogger.debug('Debugging user data');
-userLogger.info('User joined a poll', { pollIdd: 'p-id' });
-```
-Using logger errors:
-```ts
-try {
-  throw new Error('Error');
-} catch (err) {
-  logger.error(err);
+- Go to [Slack Apps](https://api.slack.com/apps)
+- Create new app **from a manifest**
+- Select your workspace
+- Use this JSON:
+```JSON
+{
+    "display_information": {
+        "name": "Open Poll"
+    },
+    "features": {
+        "bot_user": {
+            "display_name": "Open Poll",
+            "always_online": false
+        }
+    },
+    "oauth_config": {
+        "scopes": {
+            "bot": [
+                "channels:history",
+                "chat:write",
+                "commands",
+                "groups:history"
+            ]
+        }
+    },
+    "settings": {
+        "org_deploy_enabled": false,
+        "socket_mode_enabled": false,
+        "token_rotation_enabled": false
+    }
 }
 ```
+- From the page you see copy `Signing Secret` and paste it into your .env
+- Go to **Features/OAuth & Permissions/** and click `Install to your-workspace`
+- From the same page copy `Bot User OAuth Token` and paste it into your .env as `SLACK_BOT_TOKEN`
+
+
+### 4. Set up Firebase
+- Go to [Firebase Console](https://console.firebase.google.com/)
+- Create new project
+- On the left panel at the bottom upgrade pricing plan to **Pay as you go**(you will not have to pay for anything)
+- Now in terminal:
+```bash
+npm install -g firebase-tools
+firebase login
+cd functions
+npm install
+firebase use --add
+```
+- Choose the Firebase project you just created
+- Create alias for this project
+- If you want to change the default deploy project:
+```bash
+firebase use
+firebase use project-you-want-to-use
+```
+- Now deploy
+```bash
+firebase deploy --only functions
+```
+- Then it will ask you about clean up policy - just type `1` and enter
+
+
+### 5. Finish Slack App Configuration
+- In your [Firebase Console](https://console.firebase.google.com/) project open `Build/Functions`
+- You should see **slack** function and under **Trigger** and **Request** there is URL
+- Copy this and use in your [Slack App](https://api.slack.com/apps):
+  - Open **Features/App Manifest**
+  - paste this into JSON:
+  ```JSON
+  {
+    "display_information": {
+        "name": "Open Poll"
+    },
+    "features": {
+        "bot_user": {
+            "display_name": "Open Poll",
+            "always_online": false
+        },
+        "slash_commands": [
+            {
+                "command": "/poll",
+                "url": "INSERT-URL",
+                "description": "Creates a poll!",
+                "usage_hint": "\"question\", answer, answer OR help",
+                "should_escape": false
+            }
+        ]
+    },
+    "oauth_config": {
+        "scopes": {
+            "bot": [
+                "channels:history",
+                "chat:write",
+                "commands",
+                "groups:history"
+            ]
+        }
+    },
+    "settings": {
+        "event_subscriptions": {
+            "request_url": "INSERT-URL",
+            "bot_events": [
+                "message.channels",
+                "message.groups"
+            ]
+        },
+        "interactivity": {
+            "is_enabled": true,
+            "request_url": "INSERT-URL"
+        },
+        "org_deploy_enabled": false,
+        "socket_mode_enabled": false,
+        "token_rotation_enabled": false
+    }
+  }
+  ```
+  - Paste your URL from Firebase Console Functions into fields with `INSERT-URL`
+  - Click **Save Changes**
+  - Now go to **Features/OAuth & Permissions** and click `Reinstal to your-workspace`
+  - And you are done!
+  
 
 ## Slash Command Handler
 
-Handler processes `/poll` commands from users, validates the input, creates a poll using chat.postMessage
-Returns the poll message with options and buttons for voting
-Added functionality for multi-choice polls
+- Handler processes `/poll` commands from users, validates the input, creates a poll using chat.postMessage
+- Returns the poll message with options and buttons for voting
+- Added functionality for multi-choice polls
 
 #### Funcionality
 
-Parses poll question and options from command text
-Adds a lot of functionality by using flags
-Creates a poll using the PollService
-Returns a block message in the Slack channel with the question, options and buttons
-Handles errors if the command format is invalid or if the poll creation fails
-When errors happen, the slash command is responded by chat.postEphemeral which is shown just to the user that tried to create the poll
+- Parses poll question and options from command text
+- Adds a lot of functionality by using flags
+- Creates a poll using the PollService
+- Returns a block message in the Slack channel with the question, options and buttons
+- Handles errors if the command format is invalid or if the poll creation fails
+- When errors happen, the slash command is responded by chat.postEphemeral which is shown just to the user that tried to create the poll
 
 ### Flags
 
@@ -272,9 +302,9 @@ Handler processes app.action when the vote happens
 
 ### Functionality
 
-The vote is recorded in the PollService
-After vote is recorded, the poll display is updated with the latest vote counts using user's ID
-If user votes again for the same option, the vote is deleted
+- The vote is recorded in the PollService
+- After vote is recorded, the poll display is updated with the latest vote counts using user's ID
+- If user votes again for the same option, the vote is deleted
 
 If user votes again for different option:
 - For single choice polls (default):
@@ -304,6 +334,40 @@ There are two buttons:
     - Deletes the original poll message
     - Displays informative form for user about deleting the poll
 
+## Usage of Logger
+
+Basic setup:
+```ts
+import { Logger } from './utils/logger';
+const logger = new Logger({ requestId: 'r-123' });
+logger.info('Logger started');
+```
+User context:
+```ts
+loger.info('User did something', {
+  userId: 'u-id',
+  workspaceId: 'w-id',
+});
+```
+Using withContext:
+```ts
+const userLogger = logger.withContext({
+  userId: 'u-id',
+  workspaceId: 'w-id',
+});
+userLogger.debug('Debugging user data');
+userLogger.info('User joined a poll', { pollIdd: 'p-id' });
+```
+Using logger errors:
+```ts
+try {
+  throw new Error('Error');
+} catch (err) {
+  logger.error(err);
+}
+```
+
+
 ## 📚 Learning Resources
 
 If you're new to some parts of this stack, check out these:
@@ -328,7 +392,7 @@ If you're new to some parts of this stack, check out these:
 
 ## 🤝 Contributing
 
-We welcome contributions to OpenPoll!
+We welcome contributions to Open Poll!
 
 1. Fork the repo
 2. Create a new feature branch
