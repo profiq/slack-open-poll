@@ -21,7 +21,7 @@ export class FirestoreService<T extends BaseDocument> {
   async getById(id: string) {
     const doc = await this.collection.doc(id).get();
     const data = doc.data();
-    
+
     if (!data) {
       return data;
     }

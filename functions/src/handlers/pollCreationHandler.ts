@@ -29,7 +29,7 @@ export const handlePollCommand = async ({
     return;
   }
 
-  const { question, options, multiple, maxVotes, custom, help, info } = parsed;
+  const { question, options, multiple, maxVotes, custom, anonymous, help, info } = parsed;
 
   if (help) {
     await client.chat.postEphemeral({
@@ -85,6 +85,7 @@ export const handlePollCommand = async ({
       multiple,
       maxVotes,
       custom,
+      anonymous,
     });
 
     const pollSnap = await pollRef.get();
@@ -137,6 +138,7 @@ function parseCommand(text: string): {
   multiple: boolean;
   maxVotes?: number;
   custom?: boolean;
+  anonymous?: boolean;
   help: boolean;
   info: boolean;
 } | null {
@@ -169,6 +171,8 @@ function parseCommand(text: string): {
   let isMultiple = keyWordPart.includes('multiple');
 
   const isCustom = keyWordPart.includes('custom') || keyWordPart.includes('-c');
+
+  const isAnonymous = keyWordPart.includes('anonymous') || keyWordPart.includes('-a');
 
   const maxVotesMatch = keyWordPart.match(/limit\s+(\d{1,2})/i);
   let maxVotes = 1;
@@ -208,6 +212,7 @@ function parseCommand(text: string): {
     multiple: isMultiple,
     maxVotes: maxVotes,
     custom: isCustom,
+    anonymous: isAnonymous,
     help: false,
     info: false,
   };

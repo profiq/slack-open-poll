@@ -11,6 +11,7 @@ export interface Poll extends BaseDocument {
   maxVotes?: number;
   custom?: boolean;
   closed?: boolean;
+  anonymous?: boolean;
 }
 
 export type PollInput = Omit<Poll, 'createdAt'>;

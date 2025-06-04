@@ -243,6 +243,12 @@ You can use flags before typing the question to customise the poll usage:
   - ```
     /poll custom "Question"...
     ```
+- `anonymous`:
+  - creates a poll that does not show votes publicly (just the amount of votes)
+  - you can still see your votes in the "Open" form
+  - ```
+    /poll anonymous "Question"...
+  ```
 Tip: you can combine flags
 ```
 /poll custom limit 2 "Question"...

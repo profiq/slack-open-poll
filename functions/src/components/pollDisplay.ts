@@ -86,9 +86,20 @@ export const pollDisplayBlock = (poll: Poll | undefined, pollId: string): AnyBlo
     ],
   };
 
+  const anonymousBlock: AnyBlock = {
+    type: 'context',
+    elements: [
+      {
+        type: 'mrkdwn',
+        text: 'Votes are anonymous',
+      },
+    ],
+  };
+
   const displayBlock: AnyBlock[] = [
     mrkdwnSection('default', poll.question),
     ...(poll.multiple ? [poll.maxVotes === 10 ? multiChoiceBlock : maxVotesBlock] : []),
+    ...(poll.anonymous ? [anonymousBlock] : []),
     ...(poll.closed ? [{ type: 'divider ' }, isClosedBlock] : []),
     {
       type: 'divider',
@@ -103,9 +114,14 @@ export const pollDisplayBlock = (poll: Poll | undefined, pollId: string): AnyBlo
 
         const voteCount = votedUsers?.length ?? 0;
 
-        let optionText = `${emoji} ${option.label} \n ${userMentions.join(' ')}`;
+        let optionText = `${emoji} ${option.label}`;
+
         if (voteCount > 0) {
-          optionText = `${emoji} ${option.label} \`${voteCount}\` \n ${userMentions.join(' ')}`;
+          optionText = `${emoji} ${option.label} \`${voteCount}\``;
+
+          if (!poll.anonymous) {
+            optionText = `${emoji} ${option.label} \`${voteCount}\` \n ${userMentions.join(' ')}`;
+          }
         }
 
         return {
