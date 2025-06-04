@@ -38,7 +38,7 @@
 
 ---
 
-## 🚀 Running Open Poll Locally
+## 🚀 Deploying Open Poll
 
 > 🧠 First, ensure you have [Node.js](https://nodejs.org/) and [Firebase CLI](https://firebase.google.com/docs/cli) installed.
 
