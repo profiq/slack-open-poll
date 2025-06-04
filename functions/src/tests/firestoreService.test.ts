@@ -112,7 +112,7 @@ describe('FirestoreService', () => {
       await service.delete('1');
 
       expect(mockCollection.doc).toHaveBeenCalledWith('1');
-      expect(mockDoc.delete).toHaveBeenCalled();
+      expect(mockDoc.update).toHaveBeenCalledWith({ deleted: true });
     });
   });
 

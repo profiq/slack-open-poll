@@ -294,7 +294,7 @@ There are two buttons:
     - Updates original poll message with `Voting has ended for this poll`
     - For any other vote attempt responds with ephemeral message
   - `Delete Poll`:
-    - Deletes the poll in Firestore
+    - Soft deletes the poll in Firestore Database - just has the flag `deleted`
     - Deletes the original poll message
     - Displays informative form for user about deleting the poll
 

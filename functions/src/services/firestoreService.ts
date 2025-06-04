@@ -19,11 +19,22 @@ export class FirestoreService<T extends BaseDocument> {
     this.collection = firestore.collection(collectionName).withConverter(converter<T>());
   }
   async getById(id: string) {
-    return (await this.collection.doc(id).get()).data();
+    const doc = await this.collection.doc(id).get();
+    const data = doc.data();
+    
+    if (!data) {
+      return data;
+    }
+
+    if (data.deleted) {
+      return null;
+    }
+    return data;
   }
 
   async getAll() {
-    return (await this.collection.get()).docs.map((doc) => doc.data());
+    const snapshot = await this.collection.get();
+    return snapshot.docs.map((doc) => doc.data()).filter((data) => !data.deleted);
   }
 
   async create(data: Omit<T, 'createdAt'>) {
@@ -37,7 +48,8 @@ export class FirestoreService<T extends BaseDocument> {
   }
 
   async delete(id: string) {
-    return await this.collection.doc(id).delete();
+    await this.collection.doc(id).update({ deleted: true });
+    return { id, deleted: true };
   }
 
   // New transaction methods

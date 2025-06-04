@@ -8,6 +8,7 @@ import { handleOpenButton } from './handlers/openButtonHandler';
 import { handleUserVotesButton } from './handlers/userVotesButtonHandler';
 import { handlePollSettingsButton } from './handlers/pollSettingsHandler';
 import { handleClosePoll } from './handlers/pollCloseHandler';
+import { handleDeletePoll } from './handlers/pollDeleteHandler';
 
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
@@ -57,5 +58,8 @@ app.action('poll_settings', handlePollSettingsButton);
 
 // Closes the poll - updates poll message, posts pollResult in thread, blocks another vote attempts
 app.action('close_poll', handleClosePoll);
+
+// Deletes poll in firestore, poll message, opens form with confirmation message
+app.action('delete_poll', handleDeletePoll);
 
 export const slackReceiver = receiver;
