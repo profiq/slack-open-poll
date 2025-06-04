@@ -278,6 +278,25 @@ If user votes again for different option:
   - Previous choices stay intact
   - New choice is added to list of other choices
 
+## Open Button
+
+`Open` button in every Slack poll opens a form with poll options  
+There are two buttons:
+- `Your Votes`:
+  - Shows your own options, which you have voted for
+- `Settings`:  
+  Only the creator of the poll can access this form  
+  Opens two buttons:
+  - `Close Poll`:
+    - Closes the poll (poll.closed)
+    - Blocks another votes after the poll is closed
+    - Posts result in the poll message thread
+    - Updates original poll message with `Voting has ended for this poll`
+    - For any other vote attempt responds with ephemeral message
+  - `Delete Poll`:
+    - Deletes the poll in Firestore
+    - Deletes the original poll message
+    - Displays informative form for user about deleting the poll
 
 ## 📚 Learning Resources
 
