@@ -1,0 +1,28 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+version-resolver:
+  major:
+    labels:
+      - "major"
+  minor:
+    labels:
+      - "minor"
+  patch:
+    labels:
+      - "patch"
+  default: patch
+categories:
+  - title: "📦 Package updates"
+    labels:
+      - "renovate"
+template: |
+  # 📝 Release Notes - v$RESOLVED_VERSION
+
+  ### 🚀 What’s Changed
+  $CHANGES
+
+  ---
+
+  ## 👥 Contributors
+
+  $CONTRIBUTORS
