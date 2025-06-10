@@ -60,7 +60,7 @@ describe('handleOpenButton', () => {
               }),
               expect.objectContaining({
                 type: 'button',
-                action_id: 'poll_form',
+                action_id: 'poll_settings',
                 value: pollId,
               }),
             ]),

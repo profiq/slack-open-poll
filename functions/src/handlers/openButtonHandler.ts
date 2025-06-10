@@ -56,7 +56,7 @@ export const handleOpenButton = async (args: SlackActionMiddlewareArgs<BlockActi
                 emoji: true,
               },
               style: 'primary',
-              action_id: 'poll_form',
+              action_id: 'poll_settings',
               value: pollId,
             },
           ],
