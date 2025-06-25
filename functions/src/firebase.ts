@@ -10,5 +10,5 @@ firestore
     console.log('Pre-warming Firestore');
   })
   .catch((err) => {
-    console.log('Pre-warming Firestore failed: ', err);
+    console.error('Pre-warming Firestore failed: ', err);
   });

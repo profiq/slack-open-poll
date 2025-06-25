@@ -2,6 +2,8 @@
 
 **Open Poll** is an open-source Slack-integrated app that lets your team quickly create and run polls using a `/poll` command. Inspired by [Simple Poll](https://www.simplepoll.rocks/), Open Poll is built in **TypeScript**, runs on **Firebase Cloud Functions**, and is fully customizable for self-hosting or development learning.
 
+The idea is that you **self-host** this application in your own Firebase instance. See the installation instructions bellow.
+
 ---
 
 ## 🚀 Project Goals
@@ -107,6 +109,7 @@ You are going to get `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN` in step number
 - Go to [Firebase Console](https://console.firebase.google.com/)
 - Create new project
 - On the left panel at the bottom upgrade pricing plan to **Pay as you go**(you will not have to pay for anything)
+- Go to Firestore Settings and create new default database, ideally in the same region you have your Functions set in .env file
 - Now in terminal:
 ```bash
 npm install -g firebase-tools
@@ -183,7 +186,8 @@ firebase deploy --only functions
     }
   }
   ```
-  - Paste your URL from Firebase Console Functions into fields with `INSERT-URL`
+  - Paste your URL from Firebase Console Functions into fields with `INSERT-URL`, make sure it ends with `slack/events`it should look like 
+    -  `https://europe-west3-your-project-name.cloudfunctions.net/slack/events`
   - Click **Save Changes**
   - Now go to **Features/OAuth & Permissions** and click `Reinstal to your-workspace`
   - And you are done!
