@@ -35,6 +35,20 @@ const app = new App({
 //   }
 // });
 
+app.error(async (error) => {
+  if (
+    'data' in error &&
+    typeof error.data === 'object' &&
+    error.data &&
+    'error' in error.data &&
+    typeof error.data.error === 'string'
+  ) {
+    if (error.data.error == 'not_in_channel' && error.code == 'slack_webapi_platform_error') {
+      console.log('Bot není v kanálu');
+    }
+  }
+});
+
 // Parses dynamic input, Creates a poll and Stores data in Firestore
 app.command('/poll', handlePollCommand);
 

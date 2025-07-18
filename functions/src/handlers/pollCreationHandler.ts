@@ -9,10 +9,11 @@ export const handlePollCommand = async ({
   command,
   ack,
   client,
+  body,
 }: SlackCommandMiddlewareArgs & AllMiddlewareArgs): Promise<void> => {
   await ack();
 
-  const parsed = parseCommand(command.text || '');
+  const parsed = await parseCommand(command.text || '');
 
   const log = new Logger({
     userId: command.user_id,
@@ -29,7 +30,7 @@ export const handlePollCommand = async ({
     return;
   }
 
-  const { question, options, multiple, maxVotes, custom, anonymous, help, info } = parsed;
+  const { question, options, multiple, maxVotes, custom, anonymous, help, info, create } = parsed;
 
   if (help) {
     await client.chat.postEphemeral({
@@ -44,6 +45,132 @@ export const handlePollCommand = async ({
       channel: command.channel_id,
       user: command.user_id,
       blocks: pollInfoMessage(),
+    });
+    return;
+  }
+
+  if (create) {
+    await client.views.open({
+      trigger_id: body.trigger_id,
+      view: {
+        type: 'modal',
+        title: {
+          type: 'plain_text',
+          text: 'Create Poll',
+          emoji: true,
+        },
+        submit: {
+          type: 'plain_text',
+          text: 'Submit',
+          emoji: true,
+        },
+        close: {
+          type: 'plain_text',
+          text: 'Cancel',
+          emoji: true,
+        },
+        blocks: [
+          {
+            type: 'input',
+            element: {
+              type: 'plain_text_input',
+              action_id: 'plain_text_input-action',
+            },
+            label: {
+              type: 'plain_text',
+              text: 'Question',
+              emoji: true,
+            },
+          },
+          {
+            type: 'input',
+            element: {
+              type: 'number_input',
+              is_decimal_allowed: false,
+              action_id: 'number_input-action',
+            },
+            label: {
+              type: 'plain_text',
+              text: 'Limit number of section',
+              emoji: true,
+            },
+          },
+          {
+            type: 'input',
+            element: {
+              type: 'static_select',
+              placeholder: {
+                type: 'plain_text',
+                text: 'Select an item',
+                emoji: true,
+              },
+              options: [
+                {
+                  text: {
+                    type: 'plain_text',
+                    text: 'Yes',
+                    emoji: true,
+                  },
+                  value: 'yes',
+                },
+                {
+                  text: {
+                    type: 'plain_text',
+                    text: 'No',
+                    emoji: true,
+                  },
+                  value: 'no',
+                },
+              ],
+              action_id: 'static_select-action',
+            },
+            label: {
+              type: 'plain_text',
+              text: 'Add abillity to add custom options?',
+              emoji: true,
+            },
+          },
+          {
+            type: 'input',
+            element: {
+              type: 'plain_text_input',
+              action_id: 'plain_text_input-action',
+            },
+            label: {
+              type: 'plain_text',
+              text: 'Option 1',
+              emoji: true,
+            },
+          },
+          {
+            type: 'input',
+            element: {
+              type: 'plain_text_input',
+              action_id: 'plain_text_input-action',
+            },
+            label: {
+              type: 'plain_text',
+              text: 'Option 2',
+              emoji: true,
+            },
+          },
+          {
+            type: 'actions',
+            elements: [
+              {
+                type: 'button',
+                text: {
+                  type: 'plain_text',
+                  text: 'Add option',
+                  emoji: true,
+                },
+                value: 'add-option',
+                action_id: 'actionId-0',
+              },
+            ],
+          },
+        ],
+      },
     });
     return;
   }
@@ -131,7 +258,9 @@ export const handlePollCommand = async ({
   }
 };
 
-function parseCommand(text: string): {
+export const parseCommand = async (
+  text: string
+): Promise<{
   question: string;
   options: string[];
   flags: string[];
@@ -141,7 +270,8 @@ function parseCommand(text: string): {
   anonymous?: boolean;
   help: boolean;
   info: boolean;
-} | null {
+  create: boolean;
+} | null> => {
   const quoteIndex = text.indexOf('"');
 
   const keyWordPart = text.slice(0, quoteIndex).trim();
@@ -155,6 +285,7 @@ function parseCommand(text: string): {
       multiple: false,
       help: true,
       info: false,
+      create: false,
     };
   }
   if (trimmed === 'info') {
@@ -165,6 +296,18 @@ function parseCommand(text: string): {
       multiple: false,
       help: false,
       info: true,
+      create: false,
+    };
+  }
+  if (trimmed === 'create') {
+    return {
+      question: '',
+      options: [],
+      flags: [],
+      multiple: false,
+      help: false,
+      info: false,
+      create: true,
     };
   }
 
@@ -215,5 +358,6 @@ function parseCommand(text: string): {
     anonymous: isAnonymous,
     help: false,
     info: false,
+    create: false,
   };
-}
+};
