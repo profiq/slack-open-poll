@@ -9,6 +9,8 @@ import { handleUserVotesButton } from './handlers/userVotesButtonHandler';
 import { handlePollSettingsButton } from './handlers/pollSettingsHandler';
 import { handleClosePoll } from './handlers/pollCloseHandler';
 import { handleDeletePoll } from './handlers/pollDeleteHandler';
+import { handleSumbitCreatePoll } from './handlers/createFormSubmitHandler';
+import { handleAddOptionCreateForm } from './handlers/addOptionCreateFormHandler';
 
 const receiver = new ExpressReceiver({
   signingSecret: config.SLACK_SIGNING_SECRET,
@@ -19,6 +21,12 @@ const app = new App({
   token: config.SLACK_BOT_TOKEN,
   receiver,
 });
+
+export let idSender: string;
+
+export function setIdSender(id: string): void {
+  idSender = id;
+}
 
 // this is not necessary for function, can be removed later
 // app.event('app_mention', async ({ event, say }) => {
@@ -43,8 +51,30 @@ app.error(async (error) => {
     'error' in error.data &&
     typeof error.data.error === 'string'
   ) {
-    if (error.data.error == 'not_in_channel' && error.code == 'slack_webapi_platform_error') {
-      console.log('Bot není v kanálu');
+    const errData = error.data;
+
+    if (errData.error === 'not_in_channel' && error.code === 'slack_webapi_platform_error') {
+      // console.log('Bot not in channel');
+
+      try {
+        const imResult = await app.client.conversations.open({
+          users: idSender, // 'U0957GA0TS8',
+        });
+
+        const dmChannel = imResult.channel?.id;
+        if (!dmChannel) {
+          console.error('Cannot open DM channel.');
+          return;
+        }
+
+        // Pošleme zprávu
+        await app.client.chat.postMessage({
+          channel: dmChannel,
+          text: 'Nemohu poslat zprávu do kanálu, protože tam nejsem přidán/a. Prosím, přidej mě ručně nebo mě pozvi pomocí `/invite @tvujbot`.',
+        });
+      } catch (Error) {
+        console.error('Erro sending DM:', Error);
+      }
     }
   }
 });
@@ -75,5 +105,10 @@ app.action('close_poll', handleClosePoll);
 
 // Deletes poll in firestore, poll message, opens form with confirmation message
 app.action('delete_poll', handleDeletePoll);
+
+// Create form
+app.view('create_form_poll', handleSumbitCreatePoll);
+
+app.action('action_add_option', handleAddOptionCreateForm);
 
 export const slackReceiver = receiver;

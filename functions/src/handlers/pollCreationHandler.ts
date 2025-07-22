@@ -4,6 +4,7 @@ import { mrkdwnSection, pollHelpMessage, pollInfoMessage } from '../components/m
 import { AnyBlock } from '@slack/types';
 import { AllMiddlewareArgs, SlackCommandMiddlewareArgs } from '@slack/bolt';
 import { Logger } from '../utils/logger';
+import { setIdSender } from '../slackApp';
 
 export const handlePollCommand = async ({
   command,
@@ -20,6 +21,8 @@ export const handlePollCommand = async ({
     workspaceId: command.team_id,
     functionName: 'handlePollCommand',
   });
+
+  setIdSender(command.user_id);
 
   if (!parsed) {
     await client.chat.postEphemeral({
@@ -54,6 +57,8 @@ export const handlePollCommand = async ({
       trigger_id: body.trigger_id,
       view: {
         type: 'modal',
+        callback_id: 'create_form_poll',
+        private_metadata: command.channel_id,
         title: {
           type: 'plain_text',
           text: 'Create Poll',
@@ -72,9 +77,14 @@ export const handlePollCommand = async ({
         blocks: [
           {
             type: 'input',
+            block_id: 'question',
             element: {
               type: 'plain_text_input',
-              action_id: 'plain_text_input-action',
+              action_id: 'plain_text_input_question',
+              placeholder: {
+                type: 'plain_text',
+                text: 'Write Question',
+              },
             },
             label: {
               type: 'plain_text',
@@ -84,10 +94,17 @@ export const handlePollCommand = async ({
           },
           {
             type: 'input',
+            block_id: 'option_value',
             element: {
               type: 'number_input',
               is_decimal_allowed: false,
-              action_id: 'number_input-action',
+              action_id: 'number_input_limit_section',
+              min_value: '1',
+              max_value: '2',
+              placeholder: {
+                type: 'plain_text',
+                text: 'Enter a number',
+              },
             },
             label: {
               type: 'plain_text',
@@ -97,11 +114,12 @@ export const handlePollCommand = async ({
           },
           {
             type: 'input',
+            block_id: 'select_custom',
             element: {
               type: 'static_select',
               placeholder: {
                 type: 'plain_text',
-                text: 'Select an item',
+                text: 'Select Yes/No',
                 emoji: true,
               },
               options: [
@@ -122,7 +140,7 @@ export const handlePollCommand = async ({
                   value: 'no',
                 },
               ],
-              action_id: 'static_select-action',
+              action_id: 'static_select_custom_option',
             },
             label: {
               type: 'plain_text',
@@ -132,9 +150,14 @@ export const handlePollCommand = async ({
           },
           {
             type: 'input',
+            block_id: 'option_input_1',
             element: {
               type: 'plain_text_input',
-              action_id: 'plain_text_input-action',
+              action_id: 'plain_text_input_option_1',
+              placeholder: {
+                type: 'plain_text',
+                text: 'Write option',
+              },
             },
             label: {
               type: 'plain_text',
@@ -144,9 +167,14 @@ export const handlePollCommand = async ({
           },
           {
             type: 'input',
+            block_id: 'option_input_2',
             element: {
               type: 'plain_text_input',
-              action_id: 'plain_text_input-action',
+              action_id: 'plain_text_input_option_2',
+              placeholder: {
+                type: 'plain_text',
+                text: 'Write option',
+              },
             },
             label: {
               type: 'plain_text',
@@ -164,8 +192,8 @@ export const handlePollCommand = async ({
                   text: 'Add option',
                   emoji: true,
                 },
-                value: 'add-option',
-                action_id: 'actionId-0',
+                value: 'add_option',
+                action_id: 'action_add_option',
               },
             ],
           },
@@ -174,7 +202,6 @@ export const handlePollCommand = async ({
     });
     return;
   }
-
   if (options.length < 2) {
     log.warn('Creating poll failed: Less than 2 options provided');
     await client.chat.postEphemeral({
