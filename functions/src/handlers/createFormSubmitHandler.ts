@@ -83,19 +83,6 @@ export const handleSumbitCreatePoll = async (
   const pollService = new PollService();
 
   try {
-    /*
-    console.log(
-      question + ' ' +
-      pollOptions + ' ' +
-      body.user.id + ' ' +
-      String(body.team?.id) + ' ' +
-       +'\n        ' +
-      multiple + ' ' +
-      maxVotes + ' ' +
-      cus + ' ' +
-      anonymous);
-
-     */
     const pollRef = await pollService.create({
       question,
       options: pollOptions,
