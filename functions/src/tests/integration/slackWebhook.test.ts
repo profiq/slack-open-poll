@@ -6,7 +6,6 @@ import { slackCommandPayload } from '../fixtures/slackPayloads';
 
 let testEnv: any;
 const LOCAL_API_URL = 'http://localhost:5001/ano/us-central1/slack/events';
-
 describe('Poll Creation Integration Tests', () => {
   beforeAll(async () => {
     // Set up Firebase emulators
