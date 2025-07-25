@@ -30,7 +30,7 @@ export const handleClosePoll = async (args: SlackActionMiddlewareArgs<BlockActio
     }
 
     if (poll.closed) {
-      log.debug('Poll was already closed');
+      log.info('Poll was already closed');
       return;
     }
 
