@@ -170,7 +170,7 @@ ngrok http 5001
 ```bash
 Forwarding                    https://5b42e2aa8f30.ngrok-free.app -> http://localhost:5001
 ```
--Copy generated public address for example `https://5b42e2aa8f30.ngrok-free.app`
+- Copy generated public address for example `https://5b42e2aa8f30.ngrok-free.app`
 
 
 ### 5. Finish Slack App Configuration
