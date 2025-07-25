@@ -1,3 +1,6 @@
+TEST MAIN 
+
+
 # 🗳️ Open Poll – TypeScript Open Source Slack Poll App
 
 **Open Poll** is an open-source Slack-integrated app that lets your team quickly create and run polls using a `/poll` command. Inspired by [Simple Poll](https://www.simplepoll.rocks/), Open Poll is built in **TypeScript**, runs on **Firebase Cloud Functions**, and is fully customizable for self-hosting or development learning.
