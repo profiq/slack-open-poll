@@ -55,13 +55,11 @@ export const handleAddOptionCreateForm = async (
     const indexToUpdate = allBlocks.findIndex((block) => block.block_id === 'option_value');
 
     if (indexToUpdate === -1) {
-          log.error('option_value block not found in modal');
-          return;
+      log.error('option_value block not found in modal');
+      return;
     }
 
     const inputBlock = allBlocks[indexToUpdate] as InputBlock;
-
-
 
     if (inputBlock.element.type === 'number_input') {
       const updatedBlock: InputBlock = {
