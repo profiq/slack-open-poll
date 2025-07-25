@@ -22,8 +22,6 @@ export const handlePollCommand = async ({
     functionName: 'handlePollCommand',
   });
 
-  log.debug('Received command ');
-
   if (!parsed) {
     await client.chat.postEphemeral({
       channel: command.channel_id,

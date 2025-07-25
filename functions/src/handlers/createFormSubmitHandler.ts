@@ -119,6 +119,7 @@ export const handleSumbitCreatePoll = async (
         blocks: [mrkdwnSection('error', 'No poll was found')],
         text: 'No poll was found',
       });
+      return;
     }
 
     log.info('Poll was created', { pollId: pollSnap.id });
@@ -133,6 +134,7 @@ export const handleSumbitCreatePoll = async (
 
     if (!postedMessage.ts) {
       log.error('Failed to get message timestamp');
+      return;
     }
 
     await pollRef.update({

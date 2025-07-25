@@ -6,7 +6,7 @@ interface SlackTriggerBody {
 }
 
 export const pollFormCreate = (
-  body: SlackTriggerBody, // Replace with the correct body type from your Slack SDK usage
+  body: SlackTriggerBody,
   command: SlackCommandMiddlewareArgs['command']
 ): ViewsOpenArguments => {
   return {
@@ -64,7 +64,7 @@ export const pollFormCreate = (
           },
           label: {
             type: 'plain_text',
-            text: 'Limit number of section',
+            text: 'Limit number of sections',
             emoji: true,
           },
         },

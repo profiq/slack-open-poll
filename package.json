@@ -4,10 +4,7 @@
   "description": "**OpenPoll** is an open-source Slack-integrated app that lets your team quickly create and run polls using a `/poll` command. Inspired by [Simple Poll](https://www.simplepoll.rocks/), OpenPoll is built in **TypeScript**, runs on **Firebase Cloud Functions**, and is fully customizable for self-hosting or development learning.",
   "main": "index.js",
   "devDependencies": {
-    "@firebase/rules-unit-testing": "^5.0.0",
-    "axios": "^1.10.0",
     "dotenv": "^17.2.0",
-    "husky": "^9.1.7",
     "vitest": "^3.2.4"
   },
   "scripts": {
