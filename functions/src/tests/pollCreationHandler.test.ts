@@ -176,38 +176,8 @@ describe('handlePollCommand', () => {
     );
   });
 
-  it('sets multiple to true if parsedInt > 10 and keeps maxVotes 10', async () => {
+  it('throws error for limit > 10', async () => {
     const text = 'limit 13 "Question" apple, banana, pear';
-
-    const mockGet = vi.fn().mockResolvedValue({
-      data: () => ({
-        question: 'Question',
-        options: [
-          { id: '1', label: 'apple' },
-          { id: '2', label: 'banana' },
-          { id: '3', label: 'pear' },
-        ],
-        multiple: true,
-        maxVotes: 1,
-      }),
-      id: 'mockPollId',
-    });
-
-    const mockCreate = vi.fn().mockResolvedValue({
-      get: mockGet,
-      update: vi.fn().mockResolvedValue(undefined),
-    });
-    PollService.prototype.create = mockCreate;
-
-    vi.mocked(pollDisplayBlock).mockReturnValue([
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: 'Poll: Question',
-        },
-      },
-    ] as AnyBlock[]);
 
     await handlePollCommand({
       ...baseCommand,
@@ -218,26 +188,14 @@ describe('handlePollCommand', () => {
       client: mockClient,
     } as SlackCommandMiddlewareArgs & AllMiddlewareArgs);
 
-    expect(mockCreate).toHaveBeenCalledWith(
+    expect(mockPostEphemeral).toHaveBeenCalledWith(
       expect.objectContaining({
-        question: 'Question',
-        options: [
-          { id: expect.stringMatching(/.+/), label: 'apple' },
-          { id: expect.stringMatching(/.+/), label: 'banana' },
-          { id: expect.stringMatching(/.+/), label: 'pear' },
-        ],
-        multiple: true,
-        maxVotes: 1,
+        channel: baseCommand.command.channel_id,
+        user: baseCommand.command.user_id,
+        text: 'Invalid limit. Please provide a number between 2 and 10.',
       })
     );
-
-    expect(mockPostMessage).toHaveBeenCalledWith(
-      expect.objectContaining({
-        channel: baseCommand.command!.channel_id,
-        text: `Poll: Question`,
-        blocks: expect.arrayContaining([]),
-      })
-    );
+    expect(mockPostMessage).not.toHaveBeenCalled();
   });
 });
 
@@ -250,7 +208,7 @@ describe('parseCommand', () => {
         options: ['Red', 'Blue', 'Green'],
         flags: [],
         multiple: false,
-        maxVotes: 10,
+        maxVotes: 1,
         custom: false,
         anonymous: false,
         help: false,
@@ -266,7 +224,7 @@ describe('parseCommand', () => {
         options: ['Red', 'Blue', 'Green'],
         flags: [],
         multiple: false,
-        maxVotes: 10,
+        maxVotes: 1,
         custom: false,
         anonymous: false,
         help: false,
@@ -282,7 +240,7 @@ describe('parseCommand', () => {
         options: ['Red', 'Blue', 'Green'],
         flags: [],
         multiple: false,
-        maxVotes: 10,
+        maxVotes: 1,
         custom: false,
         anonymous: false,
         help: false,
@@ -298,7 +256,7 @@ describe('parseCommand', () => {
         options: ['Red', 'Blue', 'Green'],
         flags: [],
         multiple: false,
-        maxVotes: 10,
+        maxVotes: 1,
         custom: false,
         anonymous: false,
         help: false,
@@ -314,7 +272,7 @@ describe('parseCommand', () => {
         options: ['Red', 'Blue', 'Green'],
         flags: [],
         multiple: false,
-        maxVotes: 10,
+        maxVotes: 1,
         custom: false,
         anonymous: false,
         help: false,
@@ -364,6 +322,30 @@ describe('parseCommand', () => {
       expect(result?.anonymous).toBe(true);
       expect(result?.maxVotes).toBe(2);
     });
+
+    it('should handle invalid limit values by throwing error', async () => {
+      await expect(parseCommand('limit 15 "Question?" Option1, Option2')).rejects.toThrow(
+        'Invalid limit. Please provide a number between 2 and 10.'
+      );
+    });
+
+    it('should ignore non-numeric limit values', async () => {
+      const result = await parseCommand('limit abc "Question?" Option1, Option2');
+      expect(result?.multiple).toBe(false);
+      expect(result?.maxVotes).toBe(1);
+    });
+
+    it('should set maxVotes to 1 for non-multiple polls', async () => {
+      const result = await parseCommand('"Simple poll?" Option1, Option2');
+      expect(result?.multiple).toBe(false);
+      expect(result?.maxVotes).toBe(1);
+    });
+
+    it('should set maxVotes to 10 for multiple polls without limit', async () => {
+      const result = await parseCommand('multiple "Multiple poll?" Option1, Option2, Option3');
+      expect(result?.multiple).toBe(true);
+      expect(result?.maxVotes).toBe(10);
+    });
   });
 
   describe('Special commands', () => {
@@ -402,7 +384,7 @@ describe('parseCommand', () => {
         options: ['OnlyOne'],
         flags: [],
         multiple: false,
-        maxVotes: 10,
+        maxVotes: 1,
         custom: false,
         anonymous: false,
         help: false,
@@ -420,7 +402,7 @@ describe('parseCommand', () => {
         options: ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven'],
         flags: [],
         multiple: false,
-        maxVotes: 10,
+        maxVotes: 1,
         custom: false,
         anonymous: false,
         help: false,

@@ -156,6 +156,18 @@ describe('commandParser', () => {
       expect(result.maxVotes).toBe(10);
     });
 
+    it('should set maxVotes to 1 when not multiple', () => {
+      const result = parseFlags('custom');
+      expect(result.isMultiple).toBe(false);
+      expect(result.maxVotes).toBe(1);
+    });
+
+    it('should set maxVotes to 10 when multiple is set', () => {
+      const result = parseFlags('multiple custom');
+      expect(result.isMultiple).toBe(true);
+      expect(result.maxVotes).toBe(10);
+    });
+
     it('should parse custom flag', () => {
       const result = parseFlags('custom');
       expect(result.isCustom).toBe(true);
@@ -182,16 +194,56 @@ describe('commandParser', () => {
       expect(result.maxVotes).toBe(5);
     });
 
-    it('should handle limit with number too high', () => {
-      const result = parseFlags('limit 15');
+    it('should parse limit with minimum valid number (2)', () => {
+      const result = parseFlags('limit 2');
       expect(result.isMultiple).toBe(true);
-      expect(result.maxVotes).toBe(1); // Should default to 1 when invalid
+      expect(result.maxVotes).toBe(2);
     });
 
-    it('should handle limit with number too low', () => {
-      const result = parseFlags('limit 1');
+    it('should parse limit with maximum valid number (10)', () => {
+      const result = parseFlags('limit 10');
       expect(result.isMultiple).toBe(true);
-      expect(result.maxVotes).toBe(1); // Should default to 1 when invalid
+      expect(result.maxVotes).toBe(10);
+    });
+
+    it('should ignore non-numeric limit and use default maxVotes', () => {
+      const result = parseFlags('limit abc');
+      expect(result.isMultiple).toBe(false);
+      expect(result.maxVotes).toBe(1);
+    });
+
+    it('should parse integer part of decimal limit', () => {
+      const result = parseFlags('limit 2.5');
+      expect(result.isMultiple).toBe(true);
+      expect(result.maxVotes).toBe(2);
+    });
+
+    it('should throw error for decimal limit with invalid integer part', () => {
+      expect(() => parseFlags('limit 15.5')).toThrow('Invalid limit. Please provide a number between 2 and 10.');
+    });
+
+    it('should throw error for limit with number too high', () => {
+      expect(() => parseFlags('limit 15')).toThrow('Invalid limit. Please provide a number between 2 and 10.');
+    });
+
+    it('should throw error for limit with number too low', () => {
+      expect(() => parseFlags('limit 1')).toThrow('Invalid limit. Please provide a number between 2 and 10.');
+    });
+
+    it('should throw error for limit with zero', () => {
+      expect(() => parseFlags('limit 0')).toThrow('Invalid limit. Please provide a number between 2 and 10.');
+    });
+
+    it('should ignore negative limit and use default maxVotes', () => {
+      const result = parseFlags('limit -5');
+      expect(result.isMultiple).toBe(false);
+      expect(result.maxVotes).toBe(1);
+    });
+
+    it('should ignore non-numeric limit but respect multiple flag', () => {
+      const result = parseFlags('multiple limit abc');
+      expect(result.isMultiple).toBe(true);
+      expect(result.maxVotes).toBe(10);
     });
 
     it('should parse multiple flags together', () => {

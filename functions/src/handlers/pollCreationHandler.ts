@@ -15,15 +15,28 @@ export const handlePollCommand = async ({
 }: SlackCommandMiddlewareArgs & AllMiddlewareArgs): Promise<void> => {
   await ack();
 
-  const parsed = await parseCommand(command.text || '');
-
   const log = new Logger({
     userId: command.user_id,
     workspaceId: command.team_id,
     functionName: 'handlePollCommand',
   });
 
-  console.log('parsed', parsed);
+  let parsed;
+  try {
+    parsed = await parseCommand(command.text || '');
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown parsing error';
+    log.warn('Poll command parsing failed');
+    await client.chat.postEphemeral({
+      channel: command.channel_id,
+      user: command.user_id,
+      text:
+        errorMessage ||
+        'Invalid format. Please use quotes around your question and provide at least 2 options. Example: /poll "Your question?" option1, option2, ...',
+    });
+    return;
+  }
+
   log.info('Poll command received', { functionName: command.text });
 
   if (!parsed) {
@@ -156,6 +169,9 @@ export const parseCommand = async (
   info: boolean;
   create: boolean;
 } | null> => {
+  const log = new Logger({
+    functionName: 'parseCommand',
+  });
   // Handle special commands first
   const trimmed = text.trim().toLowerCase();
   if (trimmed === 'help') {
@@ -196,7 +212,7 @@ export const parseCommand = async (
   const quotedResult = extractQuotedText(text);
   if (!quotedResult) {
     const errorMessage = getParsingErrorMessage(text);
-    console.log('Parsing failed:', errorMessage, 'Command:', text);
+    log.warn('Poll command parsing failed', { metadata: { errorMessage } });
     return null;
   }
 

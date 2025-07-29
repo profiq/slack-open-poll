@@ -140,10 +140,12 @@ export function parseFlags(keywordPart: string): {
     const parsedInt = parseInt(maxVotesMatch[1], 10);
     if (parsedInt >= 2 && parsedInt <= 10) {
       maxVotes = parsedInt;
+    } else {
+      throw new Error('Invalid limit. Please provide a number between 2 and 10.');
     }
     isMultiple = true;
   } else {
-    maxVotes = 10;
+    maxVotes = isMultiple ? 10 : 1;
   }
 
   return {
