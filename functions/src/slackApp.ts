@@ -9,7 +9,7 @@ import { handleUserVotesButton } from './handlers/userVotesButtonHandler';
 import { handlePollSettingsButton } from './handlers/pollSettingsHandler';
 import { handleClosePoll } from './handlers/pollCloseHandler';
 import { handleDeletePoll } from './handlers/pollDeleteHandler';
-import { handleSumbitCreatePoll } from './handlers/createFormSubmitHandler';
+import { handleSubmitCreatePoll } from './handlers/createFormSubmitHandler';
 import { handleAddOptionCreateForm } from './handlers/addOptionCreateFormHandler';
 import { errorNotInChannel } from './utils/error';
 
@@ -70,7 +70,7 @@ app.action('close_poll', handleClosePoll);
 app.action('delete_poll', handleDeletePoll);
 
 // Create form for creating poll
-app.view('create_form_poll', handleSumbitCreatePoll);
+app.view('create_form_poll', handleSubmitCreatePoll);
 
 // Add another option in create form after click on button "Add option"
 app.action('create_form_add_option', handleAddOptionCreateForm);

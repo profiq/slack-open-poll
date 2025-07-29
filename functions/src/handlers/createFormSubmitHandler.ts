@@ -5,7 +5,7 @@ import { mrkdwnSection } from '../components/mrkdwnSection';
 import { AnyBlock } from '@slack/types';
 import { pollDisplayBlock } from '../components/pollDisplay';
 
-export const handleSumbitCreatePoll = async (
+export const handleSubmitCreatePoll = async (
   args: SlackViewMiddlewareArgs<ViewSubmitAction> & { client: App['client'] }
 ) => {
   const { ack, view, body, client } = args;

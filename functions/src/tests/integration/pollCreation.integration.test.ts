@@ -292,7 +292,7 @@ describe('Poll Creation Integration Tests', () => {
       SlackApiAssertions.expectPostEphemeralCall(testEnv.slackMocks.postEphemeral, {
         channel: command.channel_id,
         user: command.user_id,
-        text: 'An error occurrred',
+        text: 'An error occurred',
       });
     });
 

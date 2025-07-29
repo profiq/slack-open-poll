@@ -8,7 +8,7 @@ export const handleAddOptionCreateForm = async (
   const { ack, body, client } = args;
 
   const log = new Logger().withContext({
-    functionName: 'handleOpenButton',
+    functionName: 'handleAddOptionCreateForm',
   });
 
   await ack();

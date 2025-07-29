@@ -24,7 +24,7 @@ export const handleOpenButton = async (args: SlackActionMiddlewareArgs<BlockActi
 
   if (!pollId) {
     log.error('Poll ID is missing');
-    throw new Error();
+    throw new Error('Poll ID is missing');
   }
 
   const pollService = new PollService();
@@ -32,7 +32,7 @@ export const handleOpenButton = async (args: SlackActionMiddlewareArgs<BlockActi
 
   if (!poll) {
     log.error('Poll not found');
-    throw new Error();
+    throw new Error('Poll not found');
   }
 
   try {

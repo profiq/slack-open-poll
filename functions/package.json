@@ -52,6 +52,7 @@
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-import": "^2.31.0",
     "firebase-functions-test": "^3.4.1",
+    "firebase-tools": "^14.11.1",
     "globals": "^16.0.0",
     "lint-staged": "^15.5.0",
     "msw": "^2.10.4",
