@@ -1,6 +1,7 @@
 import { vi, beforeEach, afterEach, expect } from 'vitest';
 import { createMockSlackWebClient, setupDefaultSlackResponses, resetSlackMocks } from '../mocks/slackWebClient';
 
+
 /**
  * Test environment setup for Slack webhook integration tests
  */
@@ -151,16 +152,21 @@ export class ServiceMocks {
    */
   static createMockPollService() {
     return {
+      // FirestoreService methods
       create: vi.fn(),
       getById: vi.fn(),
-      vote: vi.fn(),
-      close: vi.fn(),
-      delete: vi.fn(),
+      getAll: vi.fn(),
       update: vi.fn(),
+      delete: vi.fn(),
       runTransaction: vi.fn(),
       getDocRef: vi.fn(),
       getInTransaction: vi.fn(),
       updateInTransaction: vi.fn(),
+      createInTransaction: vi.fn(),
+      deleteInTransaction: vi.fn(),
+      // PollService specific methods
+      vote: vi.fn(),
+      close: vi.fn(),
     };
   }
 

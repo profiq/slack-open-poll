@@ -131,7 +131,7 @@ export const handlePollCommand = async ({
       channel: command.channel_id,
       user: command.user_id,
       blocks: [mrkdwnSection('error', `Error: ${error}`)],
-      text: 'An error occurrred',
+      text: 'An error occurred',
     });
     return;
   }

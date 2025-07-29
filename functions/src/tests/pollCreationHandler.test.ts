@@ -171,7 +171,7 @@ describe('handlePollCommand', () => {
       expect.objectContaining({
         channel: baseCommand.command.channel_id,
         user: baseCommand.command.user_id,
-        text: 'An error occurrred',
+        text: 'An error occurred',
       })
     );
   });

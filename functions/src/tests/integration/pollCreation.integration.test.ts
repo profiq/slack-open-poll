@@ -26,8 +26,7 @@ describe('Poll Creation Integration Tests', () => {
 
   beforeEach(() => {
     mockPollService = ServiceMocks.createMockPollService();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (PollService as any).mockImplementation(() => mockPollService);
+    vi.mocked(PollService).mockImplementation(() => mockPollService as unknown as PollService);
 
     // Setup default poll service responses
     mockDocRef = ServiceMocks.createMockDocumentRef();

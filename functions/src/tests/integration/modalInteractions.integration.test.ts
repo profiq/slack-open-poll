@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SlackActionMiddlewareArgs, SlackViewMiddlewareArgs, BlockAction, ViewSubmitAction, App } from '@slack/bolt';
+import type { Transaction } from 'firebase-admin/firestore';
 import { handleFormCreation } from '../../handlers/customFormHandler';
 import { handleCustomOptionSubmit } from '../../handlers/customOptionSubmitHandler';
 import { PollService } from '../../services/pollService';
@@ -25,8 +26,7 @@ describe('Modal Interactions Integration Tests', () => {
 
   beforeEach(() => {
     mockPollService = ServiceMocks.createMockPollService();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (PollService as any).mockImplementation(() => mockPollService);
+    vi.mocked(PollService).mockImplementation(() => mockPollService as unknown as PollService);
   });
 
   describe('Custom Option Form Creation', () => {
@@ -128,9 +128,11 @@ describe('Modal Interactions Integration Tests', () => {
       });
 
       // Mock the transaction methods
-      mockPollService.runTransaction.mockImplementation(async (callback) => {
-        return callback({});
-      });
+      mockPollService.runTransaction.mockImplementation(
+        async (callback: (transaction: Transaction) => Promise<unknown>) => {
+          return callback({} as Transaction);
+        }
+      );
       mockPollService.getInTransaction.mockResolvedValue(poll);
       mockPollService.updateInTransaction.mockResolvedValue(undefined);
 
@@ -215,9 +217,11 @@ describe('Modal Interactions Integration Tests', () => {
       });
 
       // Mock the transaction methods
-      mockPollService.runTransaction.mockImplementation(async (callback) => {
-        return callback({});
-      });
+      mockPollService.runTransaction.mockImplementation(
+        async (callback: (transaction: Transaction) => Promise<unknown>) => {
+          return callback({} as Transaction);
+        }
+      );
       mockPollService.getInTransaction.mockResolvedValue(poll);
       mockPollService.updateInTransaction.mockResolvedValue(undefined);
 
@@ -293,9 +297,11 @@ describe('Modal Interactions Integration Tests', () => {
       });
 
       // Mock the transaction methods
-      mockPollService.runTransaction.mockImplementation(async (callback) => {
-        return callback({});
-      });
+      mockPollService.runTransaction.mockImplementation(
+        async (callback: (transaction: Transaction) => Promise<unknown>) => {
+          return callback({} as Transaction);
+        }
+      );
       mockPollService.getInTransaction.mockResolvedValue(poll);
       mockPollService.updateInTransaction.mockResolvedValue(undefined);
 
