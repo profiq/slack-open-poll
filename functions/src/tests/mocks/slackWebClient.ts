@@ -40,14 +40,13 @@ export class SlackApiResponseBuilder {
       text: 'Updated message',
       message: {
         type: 'message',
-        subtype: undefined,
         text: 'Updated message',
         ts: '1234567890.123456',
         user: 'U1234567890',
         bot_id: 'B1234567890',
         app_id: 'A1234567890',
         blocks: [],
-      },
+      } as Record<string, unknown>,
       ...overrides,
     };
   }
@@ -65,7 +64,6 @@ export class SlackApiResponseBuilder {
       ok: true,
       channel: {
         id: 'D1234567890',
-        name: 'directmessage',
         is_channel: false,
         is_group: false,
         is_im: true,
@@ -74,7 +72,6 @@ export class SlackApiResponseBuilder {
         is_archived: false,
         is_general: false,
         unlinked: 0,
-        name_normalized: 'directmessage',
         is_shared: false,
         is_ext_shared: false,
         is_org_shared: false,
@@ -95,7 +92,7 @@ export class SlackApiResponseBuilder {
         unread_count_display: 0,
         is_open: true,
         priority: 0,
-      },
+      } as Record<string, unknown>,
       ...overrides,
     };
   }
@@ -118,12 +115,12 @@ export class SlackApiResponseBuilder {
           type: 'plain_text',
           text: 'Test Modal',
           emoji: true,
-        },
+        } as Record<string, unknown>,
         close: {
           type: 'plain_text',
           text: 'Close',
           emoji: true,
-        },
+        } as Record<string, unknown>,
         clear_on_close: false,
         notify_on_close: false,
         root_view_id: 'V1234567890',
@@ -154,12 +151,12 @@ export class SlackApiResponseBuilder {
           type: 'plain_text',
           text: 'Updated Modal',
           emoji: true,
-        },
+        } as Record<string, unknown>,
         close: {
           type: 'plain_text',
           text: 'Close',
           emoji: true,
-        },
+        } as Record<string, unknown>,
         clear_on_close: false,
         notify_on_close: false,
         root_view_id: 'V1234567890',
@@ -172,7 +169,7 @@ export class SlackApiResponseBuilder {
     };
   }
 
-  static error(error: string, code?: string): { ok: false; error: string; response_metadata?: any } {
+  static error(error: string, code?: string): { ok: false; error: string; response_metadata?: { messages: string[] } } {
     return {
       ok: false,
       error,

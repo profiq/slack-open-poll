@@ -8,6 +8,8 @@
  * - Test environment setup and teardown
  */
 
+import { expect } from 'vitest';
+
 // Mock infrastructure
 export {
   SlackApiResponseBuilder,
@@ -62,7 +64,7 @@ export const TestPatterns = {
   /**
    * Standard test setup for handler functions
    */
-  createHandlerTestArgs: (testEnv: TestEnvironment, overrides?: any) => ({
+  createHandlerTestArgs: (testEnv: InstanceType<typeof TestEnvironment>, overrides?: Record<string, unknown>) => ({
     ack: testEnv.mockAck,
     client: testEnv.slackClient,
     respond: testEnv.mockRespond,
@@ -72,9 +74,13 @@ export const TestPatterns = {
   /**
    * Common assertions for successful poll creation
    */
-  assertPollCreationSuccess: (testEnv: TestEnvironment, expectedChannel: string, expectedText?: string) => {
+  assertPollCreationSuccess: (
+    testEnv: InstanceType<typeof TestEnvironment>,
+    expectedChannel: string,
+    expectedText?: string
+  ) => {
     expect(testEnv.mockAck).toHaveBeenCalledOnce();
-    const expectedArgs: any = {
+    const expectedArgs: Record<string, unknown> = {
       channel: expectedChannel,
       text: expect.stringContaining('Poll:'),
     };
@@ -89,7 +95,7 @@ export const TestPatterns = {
   /**
    * Common assertions for error handling
    */
-  assertErrorHandling: (testEnv: TestEnvironment, expectedErrorText?: string) => {
+  assertErrorHandling: (testEnv: InstanceType<typeof TestEnvironment>, expectedErrorText?: string) => {
     expect(testEnv.mockAck).toHaveBeenCalledOnce();
     expect(testEnv.slackMocks.postEphemeral).toHaveBeenCalled();
 

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { SlackCommandMiddlewareArgs, AllMiddlewareArgs } from '@slack/bolt';
 import { handlePollCommand } from '../../handlers/pollCreationHandler';
 import { PollService } from '../../services/pollService';
 import { setupBasicIntegrationTest, TestDataFactory, SlackApiAssertions, ServiceMocks, TestPatterns } from '../utils';
@@ -45,10 +46,12 @@ describe('Poll Creation Integration Tests', () => {
         text: '"What is your favorite color?" Red, Blue, Green',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
         command,
-        body: {},
-      });
+        ack: testEnv.mockAck,
+        client: testEnv.slackClient,
+        body: command,
+      } as unknown as SlackCommandMiddlewareArgs & AllMiddlewareArgs;
 
       await handlePollCommand(args);
 
@@ -91,10 +94,12 @@ describe('Poll Creation Integration Tests', () => {
         text: 'multiple limit 2 "Pick your top 2 hobbies" Reading, Gaming, Sports, Cooking',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
         command,
-        body: {},
-      });
+        ack: testEnv.mockAck,
+        client: testEnv.slackClient,
+        body: command,
+      } as unknown as SlackCommandMiddlewareArgs & AllMiddlewareArgs;
 
       await handlePollCommand(args);
 
@@ -126,10 +131,12 @@ describe('Poll Creation Integration Tests', () => {
         text: 'anonymous custom "Anonymous feedback?" Good, Bad, Neutral',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
         command,
-        body: {},
-      });
+        ack: testEnv.mockAck,
+        client: testEnv.slackClient,
+        body: command,
+      } as unknown as SlackCommandMiddlewareArgs & AllMiddlewareArgs;
 
       await handlePollCommand(args);
 
@@ -155,10 +162,12 @@ describe('Poll Creation Integration Tests', () => {
         text: 'help',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
         command,
-        body: {},
-      });
+        ack: testEnv.mockAck,
+        client: testEnv.slackClient,
+        body: command,
+      } as unknown as SlackCommandMiddlewareArgs & AllMiddlewareArgs;
 
       await handlePollCommand(args);
 
@@ -179,10 +188,12 @@ describe('Poll Creation Integration Tests', () => {
         text: 'info',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
         command,
-        body: {},
-      });
+        ack: testEnv.mockAck,
+        client: testEnv.slackClient,
+        body: command,
+      } as unknown as SlackCommandMiddlewareArgs & AllMiddlewareArgs;
 
       await handlePollCommand(args);
 
@@ -200,10 +211,12 @@ describe('Poll Creation Integration Tests', () => {
         text: 'create',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
         command,
-        body: { trigger_id: 'trigger123.456.789' },
-      });
+        ack: testEnv.mockAck,
+        client: testEnv.slackClient,
+        body: { ...command, trigger_id: 'trigger123.456.789' },
+      } as unknown as SlackCommandMiddlewareArgs & AllMiddlewareArgs;
 
       await handlePollCommand(args);
 
@@ -225,10 +238,12 @@ describe('Poll Creation Integration Tests', () => {
         text: 'invalid command format',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
         command,
-        body: {},
-      });
+        ack: testEnv.mockAck,
+        client: testEnv.slackClient,
+        body: command,
+      } as unknown as SlackCommandMiddlewareArgs & AllMiddlewareArgs;
 
       await handlePollCommand(args);
 
@@ -242,10 +257,12 @@ describe('Poll Creation Integration Tests', () => {
         text: '"Question with one option?" OnlyOne',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
         command,
-        body: {},
-      });
+        ack: testEnv.mockAck,
+        client: testEnv.slackClient,
+        body: command,
+      } as unknown as SlackCommandMiddlewareArgs & AllMiddlewareArgs;
 
       await handlePollCommand(args);
 
@@ -262,10 +279,12 @@ describe('Poll Creation Integration Tests', () => {
       // Simulate service error
       mockPollService.create.mockRejectedValue(new Error('Database error'));
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
         command,
-        body: {},
-      });
+        ack: testEnv.mockAck,
+        client: testEnv.slackClient,
+        body: command,
+      } as unknown as SlackCommandMiddlewareArgs & AllMiddlewareArgs;
 
       await handlePollCommand(args);
 
@@ -284,10 +303,12 @@ describe('Poll Creation Integration Tests', () => {
       // Simulate Slack API error
       testEnv.slackMocks.postMessage.mockRejectedValue(new Error('Slack API error'));
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
         command,
-        body: {},
-      });
+        ack: testEnv.mockAck,
+        client: testEnv.slackClient,
+        body: command,
+      } as unknown as SlackCommandMiddlewareArgs & AllMiddlewareArgs;
 
       await handlePollCommand(args);
 

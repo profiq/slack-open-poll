@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { SlackActionMiddlewareArgs, SlackViewMiddlewareArgs, BlockAction, ViewSubmitAction, App } from '@slack/bolt';
 import { handleFormCreation } from '../../handlers/customFormHandler';
 import { handleCustomOptionSubmit } from '../../handlers/customOptionSubmitHandler';
 import { PollService } from '../../services/pollService';
-import { setupBasicIntegrationTest, TestDataFactory, SlackApiAssertions, ServiceMocks, TestPatterns } from '../utils';
+import { setupBasicIntegrationTest, TestDataFactory, SlackApiAssertions, ServiceMocks } from '../utils';
 
 // Mock dependencies
 vi.mock('../../services/pollService');
@@ -38,10 +39,12 @@ describe('Modal Interactions Integration Tests', () => {
         trigger_id: 'trigger123.456.789',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: buttonAction,
+      const args = {
+        ack: testEnv.mockAck,
+        body: buttonAction as unknown as BlockAction,
+        client: testEnv.slackClient,
         action: buttonAction.actions[0],
-      });
+      } as unknown as SlackActionMiddlewareArgs<BlockAction> & { client: App['client'] };
 
       await handleFormCreation(args);
 
@@ -76,10 +79,12 @@ describe('Modal Interactions Integration Tests', () => {
         trigger_id: undefined, // Missing trigger_id
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: { ...buttonAction, trigger_id: undefined },
+      const args = {
+        ack: testEnv.mockAck,
+        body: { ...buttonAction, trigger_id: undefined } as unknown as BlockAction,
+        client: testEnv.slackClient,
         action: buttonAction.actions[0],
-      });
+      } as unknown as SlackActionMiddlewareArgs<BlockAction> & { client: App['client'] };
 
       await expect(handleFormCreation(args)).rejects.toThrow('Missing trigger id');
 
@@ -98,10 +103,12 @@ describe('Modal Interactions Integration Tests', () => {
         value: 'poll123',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: buttonAction,
+      const args = {
+        ack: testEnv.mockAck,
+        body: buttonAction as unknown as BlockAction,
+        client: testEnv.slackClient,
         action: buttonAction.actions[0],
-      });
+      } as unknown as SlackActionMiddlewareArgs<BlockAction> & { client: App['client'] };
 
       await handleFormCreation(args);
 
@@ -119,17 +126,6 @@ describe('Modal Interactions Integration Tests', () => {
         channelId: 'C1234567890',
         channelTimeStamp: '1234567890.123456',
       });
-
-      const updatedPoll = {
-        ...poll,
-        options: [
-          ...poll.options,
-          TestDataFactory.createPollOption({
-            id: 'new-option-id',
-            label: 'Custom Option',
-          }),
-        ],
-      };
 
       // Mock the transaction methods
       mockPollService.runTransaction.mockImplementation(async (callback) => {
@@ -151,10 +147,12 @@ describe('Modal Interactions Integration Tests', () => {
         },
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
+        ack: testEnv.mockAck,
         view: viewSubmission.view,
         body: viewSubmission,
-      });
+        client: testEnv.slackClient,
+      } as unknown as SlackViewMiddlewareArgs<ViewSubmitAction> & { client: App['client'] };
 
       await handleCustomOptionSubmit(args);
 
@@ -195,10 +193,12 @@ describe('Modal Interactions Integration Tests', () => {
         },
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
+        ack: testEnv.mockAck,
         view: viewSubmission.view,
         body: viewSubmission,
-      });
+        client: testEnv.slackClient,
+      } as unknown as SlackViewMiddlewareArgs<ViewSubmitAction> & { client: App['client'] };
 
       await expect(handleCustomOptionSubmit(args)).rejects.toThrow('Option value is missing');
 
@@ -234,10 +234,12 @@ describe('Modal Interactions Integration Tests', () => {
         },
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
+        ack: testEnv.mockAck,
         view: viewSubmission.view,
         body: viewSubmission,
-      });
+        client: testEnv.slackClient,
+      } as unknown as SlackViewMiddlewareArgs<ViewSubmitAction> & { client: App['client'] };
 
       await handleCustomOptionSubmit(args);
 
@@ -266,10 +268,12 @@ describe('Modal Interactions Integration Tests', () => {
         },
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
+        ack: testEnv.mockAck,
         view: viewSubmission.view,
         body: viewSubmission,
-      });
+        client: testEnv.slackClient,
+      } as unknown as SlackViewMiddlewareArgs<ViewSubmitAction> & { client: App['client'] };
 
       await handleCustomOptionSubmit(args);
 
@@ -311,10 +315,12 @@ describe('Modal Interactions Integration Tests', () => {
         },
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
+      const args = {
+        ack: testEnv.mockAck,
         view: viewSubmission.view,
         body: viewSubmission,
-      });
+        client: testEnv.slackClient,
+      } as unknown as SlackViewMiddlewareArgs<ViewSubmitAction> & { client: App['client'] };
 
       await handleCustomOptionSubmit(args);
 

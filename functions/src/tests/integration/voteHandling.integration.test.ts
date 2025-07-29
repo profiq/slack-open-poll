@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { SlackAction } from '@slack/bolt';
 import { handleVoteAction } from '../../handlers/voteHandler';
 import { PollService } from '../../services/pollService';
-import { setupBasicIntegrationTest, TestDataFactory, SlackApiAssertions, ServiceMocks, TestPatterns } from '../utils';
+import { setupBasicIntegrationTest, TestDataFactory, SlackApiAssertions, ServiceMocks } from '../utils';
 
 // Mock dependencies
 vi.mock('../../services/pollService');
@@ -46,10 +47,11 @@ describe('Vote Handling Integration Tests', () => {
         channel_id: 'C1234567890',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: buttonAction,
-        action: buttonAction.actions[0],
-      });
+      const args = {
+        ack: testEnv.mockAck,
+        body: buttonAction as unknown as SlackAction,
+        client: testEnv.slackClient,
+      };
 
       await handleVoteAction(args);
 
@@ -89,10 +91,11 @@ describe('Vote Handling Integration Tests', () => {
         optionId: 'option1',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: buttonAction,
-        action: buttonAction.actions[0],
-      });
+      const args = {
+        ack: testEnv.mockAck,
+        body: buttonAction as unknown as SlackAction,
+        client: testEnv.slackClient,
+      };
 
       await handleVoteAction(args);
 
@@ -123,10 +126,11 @@ describe('Vote Handling Integration Tests', () => {
         optionId: 'option2',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: buttonAction,
-        action: buttonAction.actions[0],
-      });
+      const args = {
+        ack: testEnv.mockAck,
+        body: buttonAction as unknown as SlackAction,
+        client: testEnv.slackClient,
+      };
 
       await handleVoteAction(args);
 
@@ -153,10 +157,11 @@ describe('Vote Handling Integration Tests', () => {
         optionId: 'option1',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: buttonAction,
-        action: buttonAction.actions[0],
-      });
+      const args = {
+        ack: testEnv.mockAck,
+        body: buttonAction as unknown as SlackAction,
+        client: testEnv.slackClient,
+      };
 
       await handleVoteAction(args);
 
@@ -188,10 +193,11 @@ describe('Vote Handling Integration Tests', () => {
         optionId: 'option1',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: buttonAction,
-        action: buttonAction.actions[0],
-      });
+      const args = {
+        ack: testEnv.mockAck,
+        body: buttonAction as unknown as SlackAction,
+        client: testEnv.slackClient,
+      };
 
       await handleVoteAction(args);
 
@@ -217,10 +223,11 @@ describe('Vote Handling Integration Tests', () => {
         optionId: 'option1',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: buttonAction,
-        action: buttonAction.actions[0],
-      });
+      const args = {
+        ack: testEnv.mockAck,
+        body: buttonAction as unknown as SlackAction,
+        client: testEnv.slackClient,
+      };
 
       await handleVoteAction(args);
 
@@ -241,10 +248,11 @@ describe('Vote Handling Integration Tests', () => {
         optionId: 'option1',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: buttonAction,
-        action: buttonAction.actions[0],
-      });
+      const args = {
+        ack: testEnv.mockAck,
+        body: buttonAction as unknown as SlackAction,
+        client: testEnv.slackClient,
+      };
 
       await handleVoteAction(args);
 
@@ -267,10 +275,11 @@ describe('Vote Handling Integration Tests', () => {
         ],
       };
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: invalidAction,
-        action: invalidAction.actions[0],
-      });
+      const args = {
+        ack: testEnv.mockAck,
+        body: invalidAction as unknown as SlackAction,
+        client: testEnv.slackClient,
+      };
 
       await handleVoteAction(args);
 
@@ -296,10 +305,11 @@ describe('Vote Handling Integration Tests', () => {
         optionId: 'option1',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: buttonAction,
-        action: buttonAction.actions[0],
-      });
+      const args = {
+        ack: testEnv.mockAck,
+        body: buttonAction as unknown as SlackAction,
+        client: testEnv.slackClient,
+      };
 
       await handleVoteAction(args);
 
@@ -326,10 +336,11 @@ describe('Vote Handling Integration Tests', () => {
         optionId: 'option1',
       });
 
-      const args = TestPatterns.createHandlerTestArgs(testEnv, {
-        body: buttonAction,
-        action: buttonAction.actions[0],
-      });
+      const args = {
+        ack: testEnv.mockAck,
+        body: buttonAction as unknown as SlackAction,
+        client: testEnv.slackClient,
+      };
 
       await handleVoteAction(args);
 

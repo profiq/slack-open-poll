@@ -152,7 +152,7 @@ export function setupUnitTestMocks() {
 /**
  * Create a mock poll object for testing
  */
-export function createMockPoll(overrides: Partial<any> = {}) {
+export function createMockPoll(overrides: Record<string, unknown> = {}) {
   return {
     id: 'test-poll-id',
     question: 'Test poll question?',
@@ -174,7 +174,7 @@ export function createMockPoll(overrides: Partial<any> = {}) {
 /**
  * Create mock Slack user for testing
  */
-export function createMockSlackUser(overrides: Partial<any> = {}) {
+export function createMockSlackUser(overrides: Record<string, unknown> = {}) {
   return {
     id: 'U123456',
     name: 'testuser',
@@ -186,7 +186,7 @@ export function createMockSlackUser(overrides: Partial<any> = {}) {
 /**
  * Create mock Slack body for testing
  */
-export function createMockSlackBody(overrides: Partial<any> = {}) {
+export function createMockSlackBody(overrides: Record<string, unknown> = {}) {
   return {
     trigger_id: 'trigger_123',
     user: createMockSlackUser(),
