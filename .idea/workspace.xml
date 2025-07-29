@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="bb8779f9-29ff-4ed4-97e5-5519c60d8b96" name="Changes" comment="fix: update package.json" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Rebase.Settings">
+    <option name="NEW_BASE" value="origin/main" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="30MXKk4PWioBQhOj7cm8UYO4F2t" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Vitest.handleClosePoll.executor": "Run",
+    "Vitest.handleClosePoll.returns early if poll was already closed.executor": "Run",
+    "Vitest.handleOpenButton.acknowledges the button click and opens a modal.executor": "Debug",
+    "git-widget-placeholder": "robin-test",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/home/robin/Plocha/slack-open-poll/functions",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.format.executor": "Run",
+    "npm.test.executor": "Run",
+    "npm.test:watch.executor": "Run",
+    "prettierjs.PrettierConfiguration.Package": "/home/robin/Plocha/slack-open-poll/functions/node_modules/prettier",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "/home/robin/Plocha/slack-open-poll/functions/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/functions" />
+    </key>
+  </component>
+  <component name="RunManager" selected="npm.test:watch">
+    <configuration name="handleClosePoll.returns early if poll was already closed" type="JavaScriptTestRunnerVitest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <vitest-package value="$PROJECT_DIR$/functions/node_modules/vitest" />
+      <working-dir value="$PROJECT_DIR$/functions" />
+      <vitest-options value="--run" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/functions/src/tests/pollCloseHandler.test.ts" />
+      <test-names>
+        <test-name value="handleClosePoll" />
+        <test-name value="returns early if poll was already closed" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="handleOpenButton.acknowledges the button click and opens a modal" type="JavaScriptTestRunnerVitest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <vitest-package value="$PROJECT_DIR$/functions/node_modules/vitest" />
+      <working-dir value="$PROJECT_DIR$/functions" />
+      <vitest-options value="--run" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/functions/src/tests/openButtonHandler.test.ts" />
+      <test-names>
+        <test-name value="handleOpenButton" />
+        <test-name value="acknowledges the button click and opens a modal" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="format" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/functions/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="format" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="test" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/functions/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="test:watch" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/functions/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test:watch" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.test:watch" />
+        <item itemvalue="npm.test" />
+        <item itemvalue="Vitest.handleOpenButton.acknowledges the button click and opens a modal" />
+        <item itemvalue="npm.format" />
+        <item itemvalue="Vitest.handleClosePoll.returns early if poll was already closed" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-WS-251.26927.40" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bb8779f9-29ff-4ed4-97e5-5519c60d8b96" name="Changes" comment="" />
+      <created>1753438354151</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1753438354151</updated>
+      <workItem from="1753438355198" duration="404000" />
+      <workItem from="1753438781974" duration="10108000" />
+      <workItem from="1753449356653" duration="3872000" />
+      <workItem from="1753772723981" duration="3550000" />
+    </task>
+    <task id="LOCAL-00001" summary="dev dependecies">
+      <option name="closed" value="true" />
+      <created>1753441479882</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1753441479882</updated>
+    </task>
+    <task id="LOCAL-00002" summary="dev dependecies">
+      <option name="closed" value="true" />
+      <created>1753443094845</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1753443094845</updated>
+    </task>
+    <task id="LOCAL-00003" summary="dev dependecies">
+      <option name="closed" value="true" />
+      <created>1753443252240</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1753443252240</updated>
+    </task>
+    <task id="LOCAL-00004" summary="change es target">
+      <option name="closed" value="true" />
+      <created>1753443650261</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1753443650261</updated>
+    </task>
+    <task id="LOCAL-00005" summary="change es target">
+      <option name="closed" value="true" />
+      <created>1753443761954</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1753443761954</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Try to fix the tests">
+      <option name="closed" value="true" />
+      <created>1753445589607</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1753445589607</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Change packages">
+      <option name="closed" value="true" />
+      <created>1753446095995</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1753446095995</updated>
+    </task>
+    <task id="LOCAL-00008" summary="fix: try package lock">
+      <option name="closed" value="true" />
+      <created>1753446694899</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1753446694899</updated>
+    </task>
+    <task id="LOCAL-00009" summary="fix: try package lock">
+      <option name="closed" value="true" />
+      <created>1753451712833</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1753451712833</updated>
+    </task>
+    <task id="LOCAL-00010" summary="fix: update package.json">
+      <option name="closed" value="true" />
+      <created>1753776089088</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1753776089088</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="dev dependecies" />
+    <MESSAGE value="change es target" />
+    <MESSAGE value="Try to fix the tests" />
+    <MESSAGE value=" hange packages" />
+    <MESSAGE value="Change packages" />
+    <MESSAGE value="fix: try package lock" />
+    <MESSAGE value="fix: update package.json" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: update package.json" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/functions/src/tests/pollCloseHandler.test.ts</url>
+          <line>228</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
