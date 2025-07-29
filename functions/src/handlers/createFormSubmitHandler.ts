@@ -28,11 +28,9 @@ export const handleSubmitCreatePoll = async (
   let maxVotes;
   if (maxVotesString != null) {
     maxVotes = parseInt(maxVotesString, 10);
-    // console.log(question + "\n  " + maxVotes)
   }
 
   const custom = view.state.values.select_custom.static_select_custom_option.selected_option?.value;
-  // console.log(custom);
 
   const allOptions: string[] = [];
 
@@ -83,19 +81,6 @@ export const handleSubmitCreatePoll = async (
   const pollService = new PollService();
 
   try {
-    /*
-    console.log(
-      question + ' ' +
-      pollOptions + ' ' +
-      body.user.id + ' ' +
-      String(body.team?.id) + ' ' +
-       +'\n        ' +
-      multiple + ' ' +
-      maxVotes + ' ' +
-      cus + ' ' +
-      anonymous);
-
-     */
     const pollRef = await pollService.create({
       question,
       options: pollOptions,
