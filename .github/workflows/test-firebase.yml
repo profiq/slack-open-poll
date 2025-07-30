@@ -41,6 +41,7 @@ jobs:
           echo "SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN_PROD }}" >> .env
           echo "SLACK_SIGNING_SECRET=${{ secrets.SLACK_SIGNING_SECRET_PROD }}" >> .env
           echo "DEFAULT_FUNCTIONS_LOCATION=${{ secrets.DEFAULT_FUNCTIONS_LOCATION }}" >> .env
+          echo "NODE_ENV=production" >> .env
 
       - name: Install Dependencies
         working-directory: functions
