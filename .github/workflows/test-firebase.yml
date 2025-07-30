@@ -53,5 +53,3 @@ jobs:
       - name: Deploy to Firebase
         run: |
           firebase deploy --only functions
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: $HOME/gcp-key.json
