@@ -1,6 +1,7 @@
 import { App, BlockAction, ButtonAction, SlackActionMiddlewareArgs } from '@slack/bolt';
 import { View } from '@slack/types';
 import { Logger } from '../utils/logger';
+import { PollService } from '../services/pollService';
 
 export const handleOpenButton = async (args: SlackActionMiddlewareArgs<BlockAction> & { client: App['client'] }) => {
   const { ack, body, client } = args;
@@ -21,8 +22,21 @@ export const handleOpenButton = async (args: SlackActionMiddlewareArgs<BlockActi
     throw new Error('Missing trigger id');
   }
 
+  if (!pollId) {
+    log.error('Poll ID is missing');
+    throw new Error('Poll ID is missing');
+  }
+
+  const pollService = new PollService();
+  const poll = await pollService.getById(pollId);
+
+  if (!poll) {
+    log.error('Poll not found');
+    throw new Error('Poll not found');
+  }
+
   try {
-    const modalView: View = {
+    const modalViewCreator: View = {
       type: 'modal',
       callback_id: 'poll_modal',
       title: {
@@ -52,7 +66,7 @@ export const handleOpenButton = async (args: SlackActionMiddlewareArgs<BlockActi
               type: 'button',
               text: {
                 type: 'plain_text',
-                text: 'Settings',
+                text: 'Poll Actions',
                 emoji: true,
               },
               style: 'primary',
@@ -64,9 +78,43 @@ export const handleOpenButton = async (args: SlackActionMiddlewareArgs<BlockActi
       ],
     };
 
+    const modalViewUser: View = {
+      type: 'modal',
+      callback_id: 'poll_modal',
+      title: {
+        type: 'plain_text',
+        text: 'Poll Options',
+      },
+      close: {
+        type: 'plain_text',
+        text: 'Close',
+      },
+      blocks: [
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: 'Your Votes',
+                emoji: true,
+              },
+              style: 'primary',
+              action_id: 'your_votes',
+              value: pollId,
+            },
+          ],
+        },
+      ],
+    };
+
+    const userId = body.user.id;
+    const isCreator = poll.createdBy === userId;
+
     await client.views.open({
       trigger_id: triggerId,
-      view: modalView,
+      view: isCreator ? modalViewCreator : modalViewUser,
     });
   } catch (error) {
     log.error(String(error));

@@ -46,6 +46,15 @@ export const pollHelpMessage = (): AnyBlock[] => [
     type: 'section',
     text: {
       type: 'mrkdwn',
+      text:
+        '• *Example with separator between questions:*\n' +
+        '`/poll "Your question?" option1, option2 question, option3 can have spaces`',
+    },
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
       text: '• *Allow multiple selections:*\n' + '`/poll multiple "Your question?" option1, option2`',
     },
   },
