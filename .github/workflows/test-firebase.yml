@@ -33,10 +33,6 @@ jobs:
           # Set the Firebase project using the secret
           firebase use ${{ secrets.FIREBASE_PROJECT_ID }}
 
-      - name: Verify Firebase Configuration
-        run: |
-          firebase projects:list
-          firebase use --current
 
       - name: Set .env values
         working-directory: functions
