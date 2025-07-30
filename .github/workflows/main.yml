@@ -116,10 +116,20 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Decode Service Account Key
+      - name: Authenticate with Firebase
         run: |
-          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_BASE64 }}" | base64 -d > private-key.json
-          echo "GOOGLE_APPLICATION_CREDENTIALS=private-key.json" >> $GITHUB_ENV
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_BASE64 }}" | base64 -d > $HOME/gcp-key.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcp-key.json" >> $GITHUB_ENV
+
+      - name: Configure Firebase Project
+        run: |
+          # Set the Firebase project using the secret
+          firebase use ${{ secrets.FIREBASE_PROJECT_ID }}
+
+      - name: Verify Firebase Configuration
+        run: |
+          firebase projects:list
+          firebase use --current
 
       - name: Set .env values
         working-directory: functions
@@ -137,6 +147,7 @@ jobs:
         run: npm run build
 
       - name: Deploy to Firebase
-        run: firebase deploy --only functions
+        run: |
+          firebase deploy --only functions --project ${{ secrets.FIREBASE_PROJECT_ID }}
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: private-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: $HOME/gcp-key.json
