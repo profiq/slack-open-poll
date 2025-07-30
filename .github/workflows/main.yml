@@ -59,6 +59,27 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run test:coverage
+  
+  integration_test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: test
+    defaults:
+      run:
+        working-directory: functions
+    env:
+      SLACK_BOT_TOKEN: test-token
+      SLACK_SIGNING_SECRET: test-secret
+      FIRESTORE_EMULATOR_HOST: localhost:8080
+      DEFAULT_FUNCTIONS_LOCATION: europe-west3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test:integration
 
   build:
     name: Build

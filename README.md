@@ -74,30 +74,30 @@ You are going to get `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN` in step number
 - Use this JSON:
 ```JSON
 {
-    "display_information": {
-        "name": "Open Poll"
-    },
-    "features": {
-        "bot_user": {
-            "display_name": "Open Poll",
-            "always_online": false
-        }
-    },
-    "oauth_config": {
-        "scopes": {
-            "bot": [
-                "channels:history",
-                "chat:write",
-                "commands",
-                "groups:history"
-            ]
-        }
-    },
-    "settings": {
-        "org_deploy_enabled": false,
-        "socket_mode_enabled": false,
-        "token_rotation_enabled": false
+  "display_information": {
+    "name": "Open Poll"
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "Open Poll",
+      "always_online": false
     }
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "channels:history",
+        "chat:write",
+        "commands",
+        "groups:history"
+      ]
+    }
+  },
+  "settings": {
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false,
+    "token_rotation_enabled": false
+  }
 }
 ```
 - From the page you see copy `Signing Secret` and paste it into your .env
@@ -106,6 +106,8 @@ You are going to get `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN` in step number
 
 
 ### 4. Set up Firebase
+
+#### 4.1 Firebase Cloud Functions deployment
 - Go to [Firebase Console](https://console.firebase.google.com/)
 - Create new project
 - On the left panel at the bottom upgrade pricing plan to **Pay as you go**(you will not have to pay for anything)
@@ -130,6 +132,45 @@ firebase use project-you-want-to-use
 firebase deploy --only functions
 ```
 - Then it will ask you about clean up policy - just type `1` and enter
+
+#### 4.2 Local Development with Firebase Emulator + ngrok tunnel
+- Go to the `.env` file and paste `DEFAULT_FUNCTIONS_LOCATION=us-central1` or insert another locations
+- Now in terminal:
+```bash
+npm install -g firebase-tools
+firebase login
+cd functions/
+npm install
+firebase use --add
+```
+- In options select `slack-open-poll`
+- Create alias for this project
+- If you want to change the default deploy project:
+```bash
+firebase use
+firebase use project-you-want-to-use
+```
+- Now run emulator
+```bash
+firebase emulators:start --only functions,firestore
+```
+- In terminal find something like
+```bash
+✔  functions: Loaded functions definitions from source: slack.
+✔  functions[us-central1-slack]: http function initialized (http://127.0.0.1:5001/slack-open-poll/us-central1/slack).
+```
+- From `http://127.0.0.1:5001/slack-open-poll/us-central1/slack` you need this part `slack-open-poll/us-central1/slack`
+- Install and log in to [ngrok](https://ngrok.com/)
+- Free plan should be enough
+- In terminal
+```bash
+ngrok http 5001
+```
+- In terminal you will see something like
+```bash
+Forwarding                    https://5b42e2aa8f30.ngrok-free.app -> http://localhost:5001
+```
+- Copy generated public address for example `https://5b42e2aa8f30.ngrok-free.app`
 
 
 ### 5. Finish Slack App Configuration
@@ -186,8 +227,9 @@ firebase deploy --only functions
     }
   }
   ```
-  - Paste your URL from Firebase Console Functions into fields with `INSERT-URL`, make sure it ends with `slack/events`it should look like 
+  - Paste your URL from Firebase Console Functions into fields with `INSERT-URL`, make sure it ends with `slack/events`it should look like
     -  `https://europe-west3-your-project-name.cloudfunctions.net/slack/events`
+    -   with ngrok should be like`https://5b42e2aa8f30.ngrok-free.app/slack-open-poll/us-central1/slack/events`
   - Click **Save Changes**
   - Now go to **Features/OAuth & Permissions** and click `Reinstal to your-workspace`
   - And you are done!
@@ -425,5 +467,4 @@ MIT – free to use, modify, and distribute.
 ---
 
 Made with ❤️ by profiq.
-
 

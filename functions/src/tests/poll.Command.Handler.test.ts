@@ -125,7 +125,7 @@ describe('handlePollCommand Integration Tests', () => {
       expect.objectContaining({
         channel: baseCommand.command.channel_id,
         user: baseCommand.command.user_id,
-        text: 'Invalid format. Use: /poll "Your question?" option1, option2, ...',
+        text: 'Invalid format. Please use quotes around your question and provide at least 2 options. Example: /poll "Your question?" option1, option2, ...',
       })
     );
   });
@@ -249,7 +249,7 @@ describe('handlePollCommand Integration Tests', () => {
       expect.objectContaining({
         channel: baseCommand.command.channel_id,
         user: baseCommand.command.user_id,
-        text: 'An error occurrred',
+        text: 'An error occurred',
       })
     );
   });
