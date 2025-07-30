@@ -54,7 +54,7 @@ cd slack-open-poll
 ```
 
 
-### 3. Create a `.env` file with your configuration
+### 2. Create a `.env` file with your configuration
 
 - Create this file in `/functions` directory
 ```env
