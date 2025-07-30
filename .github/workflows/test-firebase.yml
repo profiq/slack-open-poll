@@ -32,6 +32,7 @@ jobs:
         run: |
           # Set the Firebase project using the secret
           firebase use ${{ secrets.FIREBASE_PROJECT_ID }}
+          firebase projects:list
 
 
       - name: Set .env values
@@ -51,6 +52,6 @@ jobs:
 
       - name: Deploy to Firebase
         run: |
-          firebase deploy --only functions --project ${{ secrets.FIREBASE_PROJECT_ID }}
+          firebase deploy --only functions
         env:
           GOOGLE_APPLICATION_CREDENTIALS: $HOME/gcp-key.json
