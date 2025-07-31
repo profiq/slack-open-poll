@@ -1,6 +1,6 @@
 [
   {
-    "question": "Které programovací jazyky ovládáte? (Vyberte max 5)",
+    "question": "Které programovací jazyky ovládáte?",
     "options": [
       { "id": "opt1", "label": "JavaScript", "count": 7 },
       { "id": "opt2", "label": "Python", "count": 5 },
@@ -56,7 +56,7 @@
     "createdAt": "2023-11-15T00:00:00Z"
   },
   {
-    "question": "Které benefity byste uvítali? (Vyberte až 3)",
+    "question": "Které benefity byste uvítali?",
     "options": [
       { "id": "opt1", "label": "Flexibilní pracovní doba", "count": 8 },
       { "id": "opt2", "label": "Home office", "count": 9 },
