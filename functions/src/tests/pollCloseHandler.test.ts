@@ -18,6 +18,9 @@ vi.mock('../utils/logger', () => ({
   Logger: vi.fn(() => ({
     withContext: vi.fn().mockReturnThis(),
     error: mockLoggerError,
+    log: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
   })),
 }));
 

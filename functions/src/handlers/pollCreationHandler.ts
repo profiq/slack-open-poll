@@ -4,15 +4,16 @@ import { mrkdwnSection, pollHelpMessage, pollInfoMessage } from '../components/m
 import { AnyBlock } from '@slack/types';
 import { AllMiddlewareArgs, SlackCommandMiddlewareArgs } from '@slack/bolt';
 import { Logger } from '../utils/logger';
+import { extractQuotedText, parseFlags, parseOptions, getParsingErrorMessage } from '../utils/commandParser';
+import { pollFormCreate } from '../components/pollFormCreate';
 
 export const handlePollCommand = async ({
   command,
   ack,
   client,
+  body,
 }: SlackCommandMiddlewareArgs & AllMiddlewareArgs): Promise<void> => {
   await ack();
-
-  const parsed = parseCommand(command.text || '');
 
   const log = new Logger({
     userId: command.user_id,
@@ -20,16 +21,34 @@ export const handlePollCommand = async ({
     functionName: 'handlePollCommand',
   });
 
-  if (!parsed) {
+  let parsed;
+  try {
+    parsed = await parseCommand(command.text || '');
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown parsing error';
+    log.warn('Poll command parsing failed');
     await client.chat.postEphemeral({
       channel: command.channel_id,
       user: command.user_id,
-      text: 'Invalid format. Use: /poll "Your question?" option1, option2, ...',
+      text:
+        errorMessage ||
+        'Invalid format. Please use quotes around your question and provide at least 2 options. Example: /poll "Your question?" option1, option2, ...',
     });
     return;
   }
 
-  const { question, options, multiple, maxVotes, custom, anonymous, help, info } = parsed;
+  log.info('Poll command received', { functionName: command.text });
+
+  if (!parsed) {
+    await client.chat.postEphemeral({
+      channel: command.channel_id,
+      user: command.user_id,
+      text: 'Invalid format. Please use quotes around your question and provide at least 2 options. Example: /poll "Your question?" option1, option2, ...',
+    });
+    return;
+  }
+
+  const { question, options, multiple, maxVotes, custom, anonymous, help, info, create } = parsed;
 
   if (help) {
     await client.chat.postEphemeral({
@@ -48,6 +67,10 @@ export const handlePollCommand = async ({
     return;
   }
 
+  if (create) {
+    await client.views.open(pollFormCreate(body, command));
+    return;
+  }
   if (options.length < 2) {
     log.warn('Creating poll failed: Less than 2 options provided');
     await client.chat.postEphemeral({
@@ -67,6 +90,7 @@ export const handlePollCommand = async ({
       blocks: [mrkdwnSection('error', 'You can only provide up to 10 options')],
       text: 'You can only provide up to 10 options.',
     });
+    return;
   }
 
   const pollOptions = options.map((label, index) => ({
@@ -125,13 +149,15 @@ export const handlePollCommand = async ({
       channel: command.channel_id,
       user: command.user_id,
       blocks: [mrkdwnSection('error', `Error: ${error}`)],
-      text: 'An error occurrred',
+      text: 'An error occurred',
     });
     return;
   }
 };
 
-function parseCommand(text: string): {
+export const parseCommand = async (
+  text: string
+): Promise<{
   question: string;
   options: string[];
   flags: string[];
@@ -141,11 +167,12 @@ function parseCommand(text: string): {
   anonymous?: boolean;
   help: boolean;
   info: boolean;
-} | null {
-  const quoteIndex = text.indexOf('"');
-
-  const keyWordPart = text.slice(0, quoteIndex).trim();
-
+  create: boolean;
+} | null> => {
+  const log = new Logger({
+    functionName: 'parseCommand',
+  });
+  // Handle special commands first
   const trimmed = text.trim().toLowerCase();
   if (trimmed === 'help') {
     return {
@@ -155,6 +182,7 @@ function parseCommand(text: string): {
       multiple: false,
       help: true,
       info: false,
+      create: false,
     };
   }
   if (trimmed === 'info') {
@@ -165,45 +193,50 @@ function parseCommand(text: string): {
       multiple: false,
       help: false,
       info: true,
+      create: false,
+    };
+  }
+  if (trimmed === 'create') {
+    return {
+      question: '',
+      options: [],
+      flags: [],
+      multiple: false,
+      help: false,
+      info: false,
+      create: true,
     };
   }
 
-  let isMultiple = keyWordPart.includes('multiple');
-
-  const isCustom = keyWordPart.includes('custom') || keyWordPart.includes('-c');
-
-  const isAnonymous = keyWordPart.includes('anonymous') || keyWordPart.includes('-a');
-
-  const maxVotesMatch = keyWordPart.match(/limit\s+(\d{1,2})/i);
-  let maxVotes = 1;
-
-  if (maxVotesMatch) {
-    const parsedInt = parseInt(maxVotesMatch[1], 10);
-    if (parsedInt >= 2 && parsedInt <= 10) {
-      maxVotes = parsedInt;
-    }
-    isMultiple = true;
-  } else {
-    maxVotes = 10;
-  }
-
-  const withoutKeywords = text.slice(quoteIndex).trim();
-
-  const questionMatch = withoutKeywords.match(/^["]([^"]+)["]/);
-  if (!questionMatch) {
+  // Extract quoted text using the robust parser
+  const quotedResult = extractQuotedText(text);
+  if (!quotedResult) {
+    const errorMessage = getParsingErrorMessage(text);
+    log.warn('Poll command parsing failed', { metadata: { errorMessage } });
     return null;
   }
 
-  const question = questionMatch[1];
-  const remainingText = withoutKeywords.slice(questionMatch[0].length).trim();
+  const { question, beforeQuote, afterQuote } = quotedResult;
 
-  const [optionsPart, ...flagsFull] = remainingText.split('--');
-  const options = optionsPart
-    .split(',')
-    .map((o) => o.trim())
-    .filter((o) => o.length > 0);
+  // Parse flags from the keyword part before the quote
+  const flagsResult = parseFlags(beforeQuote);
+  const { isMultiple, isCustom, isAnonymous, maxVotes } = flagsResult;
 
-  const flags = flagsFull.map((f) => f.trim());
+  // Parse options from the text after the quote
+  const optionsResult = parseOptions(afterQuote);
+  const { options, flags } = optionsResult;
+
+  // Only validate question and basic structure, let the main handler validate options count
+  if (!question || question.trim().length === 0) {
+    console.log('Command validation failed: Empty question', 'Command:', text);
+    return null;
+  }
+
+  console.log('Successfully parsed command:', {
+    question,
+    options,
+    flags: { isMultiple, isCustom, isAnonymous, maxVotes },
+  });
 
   return {
     question,
@@ -215,5 +248,6 @@ function parseCommand(text: string): {
     anonymous: isAnonymous,
     help: false,
     info: false,
+    create: false,
   };
-}
+};

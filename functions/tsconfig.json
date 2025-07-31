@@ -8,7 +8,11 @@
     "outDir": "lib",
     "sourceMap": true,
     "strict": true,
-    "target": "es2017"
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "dom"
+    ]
   },
   "compileOnSave": true,
   "include": [

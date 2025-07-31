@@ -9,6 +9,7 @@ interface LoggerContext {
   functionName?: string;
   timestamp?: string;
   duration?: number;
+  metadata?: Record<string, unknown>;
 }
 
 enum LogLevel {
