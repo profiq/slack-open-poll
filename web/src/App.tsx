@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route} from "react-router-dom";
+import PollDetail from "@/components/PollDetail.tsx";
 
 function App() {
     return (
         <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<Dashboard />} />
-                    <Route path="/poll/:pollId" element={<h1>Test</h1>} />
+                    <Route path="/poll/:pollId" element={<PollDetail />} />
                     <Route path="/login" element={<Login />} />
                 </Routes>
         </BrowserRouter>
