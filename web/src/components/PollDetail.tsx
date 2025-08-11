@@ -2,44 +2,38 @@ import { useParams } from "react-router-dom";
 import dataJson from "../assets/data.json";
 import { Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts";
-import type { Poll } from "../types/poll";
-
-
-const chartConfig = {
-    desktop: {
-        label: "Desktop",
-        color: "var(--chart-2)",
-    },
-    mobile: {
-        label: "Mobile",
-        color: "var(--chart-2)",
-    },
-    label: {
-        color: "var(--background)",
-    },
-} satisfies ChartConfig;
-
-
-
+import type {Poll} from "../types/poll";
+import { chartConfig } from "@/lib/chart-config";
 
 
 export default function PollDetail() {
     const { pollId } = useParams<{ pollId: string }>();
     const polls = dataJson as Poll[];
-    const poll = pollId ? polls[pollId] : undefined;
+    const poll = pollId ? polls[Number(pollId)] : undefined;
 
     if (!poll) return <h2>Poll not found</h2>;
 
-    const chartData:PollOption[] = Object.values(
-        poll.votes.reduce((acc, vote) => {
-            const key = vote.optionId;
-            acc[key] = acc[key] || { optionId: key, votes: 0 };
-            acc[key].votes += 1;
+    let voteCounts: Record<string, number> = {};
+
+    if (poll.votes) {
+        voteCounts = poll.votes.reduce((acc, vote) => {
+            acc[vote.optionId] = (acc[vote.optionId] || 0) + 1;
             return acc;
-        }, {} as Record<string, { optionId: string; votes: number }>)
-    );
+        }, {} as Record<string, number>);
+    }
+
+    const chartData = poll.options.map(option => ({
+        optionId: option.label,
+        votes: voteCounts[option.id] || 0,
+    }));
+
+    if (chartData.length === 0) {
+        chartData.push({ optionId: "No options", votes: 0 });
+    }
+
+
 
     return (
         <div className="max-w-3xl mx-auto p-6 space-y-6">
@@ -91,7 +85,7 @@ export default function PollDetail() {
                                     <BarChart
                                         data={chartData}
                                         layout="vertical"
-                                        margin={{ right: 16 }}
+                                        margin={{ left: 120, right: 16 }}
                                     >
                                         <CartesianGrid horizontal={false} />
                                         <YAxis
