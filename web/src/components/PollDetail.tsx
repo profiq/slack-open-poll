@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts";
-import type { Poll, PollOption } from "../types/poll";
+import type { Poll } from "../types/poll";
 
 
 const chartConfig = {
