@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import PollDetail from "@/components/pollDetail.tsx";
-import Dashboard from "@/components/pollList.tsx";
+import PollDetail from "@/components/pollDetail";
+import Dashboard from "@/components/pollList";
 
 
 function App() {
