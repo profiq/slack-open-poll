@@ -7,7 +7,6 @@ import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts"
 import type {Poll} from "../types/poll";
 import { chartConfig } from "@/lib/chart-config";
 
-
 export default function PollDetail() {
     const { pollId } = useParams<{ pollId: string }>();
     const polls = dataJson as Poll[];

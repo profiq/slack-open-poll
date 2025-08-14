@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import PollDetail from "@/components/PollDetail.tsx";
+import PollDetail from "@/components/pollDetail";
+import Dashboard from "@/components/pollList";
+
 
 function App() {
   return (
@@ -11,10 +13,6 @@ function App() {
       </Routes>
     </BrowserRouter>
   );
-}
-
-function Dashboard() {
-  return <h1>Dashboard</h1>;
 }
 
 function Login() {
