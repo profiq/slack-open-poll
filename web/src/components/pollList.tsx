@@ -2,7 +2,7 @@ import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow, TableCap
 import { useNavigate } from "react-router-dom";
 import type {Poll} from "../types/poll";
 import dataJson from '../assets/data.json';
-import LogoutButton from "@/components/logoutButton";
+import LogOutButton from "@/components/logOutButton.tsx";
 
 
 export default function ListOfPolls() {
@@ -16,7 +16,7 @@ export default function ListOfPolls() {
     return (
         <div>
             <nav className="flex justify-end p-8">
-                <LogoutButton />
+                <LogOutButton />
             </nav>
             <div className="max-w-5xl mx-auto p-6 bg-white rounded-2xl shadow">
                 <h1 className="text-2xl font-bold mb-2">Poll List</h1>

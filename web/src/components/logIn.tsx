@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +11,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (user) {
@@ -23,10 +22,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setError(null);
         try {
             await login(email, password);
-        } catch (err) {
+        } catch (err: unknown) {
             console.error(err);
+            setError("Invalid email or password");
         } finally {
             setLoading(false);
         }
@@ -64,6 +65,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
                                 </div>
+
+                                {error && (
+                                    <div className="text-sm text-red-500">{error}</div>
+                                )}
+
                                 <div className="flex flex-col gap-3">
                                     <Button type="submit" className="w-full" disabled={loading}>
                                         {loading ? "Logging in..." : "Login"}
@@ -72,7 +78,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                                         type="button"
                                         variant="outline"
                                         className="w-full"
-                                        onClick={() => alert("Google login zatím není hotový")}
+                                        onClick={() => alert("Google login not available now")}
                                     >
                                         Login with Google
                                     </Button>

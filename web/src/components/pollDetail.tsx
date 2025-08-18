@@ -6,7 +6,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/u
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts";
 import type {Poll} from "../types/poll";
 import { chartConfig } from "@/lib/chart-config";
-import LogoutButton from "@/components/logoutButton.tsx";
+import LogOutButton from "@/components/logOutButton.tsx";
 
 export default function PollDetail() {
     const { pollId } = useParams<{ pollId: string }>();
@@ -38,7 +38,7 @@ export default function PollDetail() {
     return (
         <div>
             <nav className="flex justify-end p-8">
-                <LogoutButton />
+                <LogOutButton />
             </nav>
             <div className="max-w-3xl mx-auto p-6 space-y-6">
 
