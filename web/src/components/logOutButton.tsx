@@ -1,13 +1,15 @@
 import { useAuth } from "@/lib/useAuth";
 import { Button } from "@/components/ui/button";
+import {useNavigate} from "react-router-dom";
 
 export default function LogOutButton() {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
 
     const handleLogout = async () => {
         try {
             await logout();
-            window.location.href = "/login";
+            navigate("/login");
         } catch (error) {
             console.error("Logout error:", error);
         }

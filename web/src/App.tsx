@@ -3,7 +3,7 @@ import PollDetail from "@/components/pollDetail";
 import Dashboard from "@/components/pollList";
 import { LoginForm } from "@/components/logIn.tsx";
 import { AuthProvider } from "@/components/authContext.tsx";
-import ProtectedRoute from "@/components/protectedRouted";
+import ProtectedRoute from "@/components/protectedRoute.tsx";
 
 function App() {
     return (

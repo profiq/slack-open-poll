@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/useAuth";
+import {useNavigate} from "react-router-dom";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
     const { login, loginWithGoogle, user } = useAuth();
@@ -14,12 +13,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (user) {
-            window.location.href = "/";
+            navigate("/");
         }
-    }, [user]);
+    }, [user, navigate]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
