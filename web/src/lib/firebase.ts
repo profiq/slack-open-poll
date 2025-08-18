@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 
 const firebaseConfig = {
@@ -7,9 +7,15 @@ const firebaseConfig = {
     projectId: "demo-project",
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-connectAuthEmulator(auth, "http://localhost:9099");
+// Only use emulators in dev/test or when explicitly enabled
+if (import.meta.env.DEV || import.meta.env.VITE_USE_EMULATORS === "true") {
+    const host = import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_HOST ?? "localhost";
+    const port = import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_PORT ?? "9099";
+    connectAuthEmulator(auth, `http://${host}:${port}`);
+}
+
 
 export { auth };
