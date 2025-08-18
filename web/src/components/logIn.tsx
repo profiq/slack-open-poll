@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +9,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/useAuth";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
-    const { login, user } = useAuth();
+    const { login, loginWithGoogle, user } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -25,9 +27,22 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         setError(null);
         try {
             await login(email, password);
-        } catch (err: unknown) {
+        } catch (err) {
             console.error(err);
             setError("Invalid email or password");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            await loginWithGoogle();
+        } catch (err) {
+            console.error(err);
+            setError("Google login failed");
         } finally {
             setLoading(false);
         }
@@ -66,9 +81,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                                     />
                                 </div>
 
-                                {error && (
-                                    <div className="text-sm text-red-500">{error}</div>
-                                )}
+                                {error && <div className="text-sm text-red-500">{error}</div>}
 
                                 <div className="flex flex-col gap-3">
                                     <Button type="submit" className="w-full" disabled={loading}>
@@ -78,9 +91,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                                         type="button"
                                         variant="outline"
                                         className="w-full"
-                                        onClick={() => alert("Google login not available now")}
+                                        onClick={handleGoogleLogin}
+                                        disabled={loading}
                                     >
-                                        Login with Google
+                                        {loading ? "Connecting..." : "Login with Google"}
                                     </Button>
                                 </div>
                             </form>
