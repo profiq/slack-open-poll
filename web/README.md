@@ -37,44 +37,14 @@ npm run lint
 
 ## Setup cloud Firebase Authentication
 
-1. Select/create a Firebase project
-2. Build -> Authentication -> Get Started
-3. Enable Email/Password sign-in method and google sign-in method
+1. Create or select a Firebase project
+2. In the Firebase Console: Build → Authentication → Get started
+3. Enable Email/Password and Google sign-in providers
 4. Add your web app to the Firebase project
 5. Register your app with a nickname
-6. Add Firebase SDK and use npm
-7. Change Firebase `const firebaseConfig` in file `web/src/lib/firebase.ts` copy `firebaseConfig` from web app settings
-
-```bash
-import { initializeApp, getApp, getApps } from "firebase/app";
-import { getAuth, connectAuthEmulator } from "firebase/auth";
-
-const firebaseConfig = {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
-};
-
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-
-const useEmulator = import.meta.env.VITE_USE_EMULATORS === "true";
-if (import.meta.env.DEV && useEmulator) {
-    const host = import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_HOST ?? "localhost";
-    const port = import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_PORT ?? "9099";
-    connectAuthEmulator(auth, `http://${host}:${port}`);
-    console.log(`Firebase Auth Emulator running at http://${host}:${port}`);
-}
-
-export { auth };
-```
-
-8. Install Firebase SDK
-9. Deploy Firebase Authentication
+6. Create a `.env` file in the `web/` with the following content from `env.example` copy insert data from (Project setting -> Your apps) `firebaseConfig`
+7. Install Firebase SDK
+8. Deploy Firebase Authentication
 
 ```bash
 npm install -g firebase-tools
