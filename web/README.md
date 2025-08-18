@@ -35,6 +35,64 @@ npm run preview
 npm run lint
 ```
 
+## Setup cloud Firebase Authentication
+
+1. Select/create a Firebase project
+2. Build -> Authentication -> Get Started
+3. Enable Email/Password sign-in method and google sign-in method
+4. Add your web app to the Firebase project
+5. Register your app with a nickname
+6. Add Firebase SDK and use npm
+7. Change Firebase `const firebaseConfig` in file `web/src/lib/firebase.ts` copy `firebaseConfig` from web app settings
+
+```bash
+import { initializeApp, getApp, getApps } from "firebase/app";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+
+const firebaseConfig = {
+    apiKey: "",
+    authDomain: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: ""
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const useEmulator = import.meta.env.VITE_USE_EMULATORS === "true";
+if (import.meta.env.DEV && useEmulator) {
+    const host = import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_HOST ?? "localhost";
+    const port = import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_PORT ?? "9099";
+    connectAuthEmulator(auth, `http://${host}:${port}`);
+    console.log(`Firebase Auth Emulator running at http://${host}:${port}`);
+}
+
+export { auth };
+```
+
+8. Install Firebase SDK
+9. Deploy Firebase Authentication
+
+```bash
+npm install -g firebase-tools
+firebase login
+cd web/
+npm install
+firebase use --add
+```
+
+- Choose the Firebase project you just created
+- Create alias for this project
+- If you want to change the default deploy project:
+
+```bash
+firebase use
+firebase use project-you-want-to-use
+```
+
 ## Using shadcn/ui
 
 This project is pre-configured with shadcn/ui, a collection of reusable components built using Radix UI and Tailwind CSS.
