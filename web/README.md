@@ -35,6 +35,34 @@ npm run preview
 npm run lint
 ```
 
+## Setup cloud Firebase Authentication
+
+1. Create or select a Firebase project
+2. In the Firebase Console: Build → Authentication → Get started
+3. Enable Google sign-in provider
+    1. To control who can login to the application you can set the Google Login to internal domains only https://console.cloud.google.com/auth/audience
+4. Add your web app to the Firebase project
+5. Register your app with a nickname
+6. Create a `.env` file in the `web/` with the following content from `.env.example` copy insert data from (Project setting -> Your apps) `firebaseConfig`
+7. Install Firebase CLI
+
+```bash
+npm install -g firebase-tools
+firebase login
+cd web/
+npm install
+firebase use --add
+```
+
+8. Choose the Firebase project you just created
+9. Create alias for this project
+10. If you want to change the default deploy project:
+
+```bash
+firebase use
+firebase use project-you-want-to-use
+```
+
 ## Using shadcn/ui
 
 This project is pre-configured with shadcn/ui, a collection of reusable components built using Radix UI and Tailwind CSS.
