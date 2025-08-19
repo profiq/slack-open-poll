@@ -1,12 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handleUserVotesButton } from '../handlers/userVotesButtonHandler';
-import { PollService } from '../services/pollService';
 import type { View } from '@slack/types';
 import type { SlackActionMiddlewareArgs, BlockAction, BlockElementAction } from '@slack/bolt';
 import { Poll } from '../types/poll';
 import { WebClient } from '@slack/web-api';
+import { firebaseMockFactory, createLoggerMockFactory } from './mocks/commonMocks';
 
-vi.mock('../services/pollService');
+// Hoist firebase mock to avoid real initialization
+vi.mock('../firebase', () => firebaseMockFactory());
+
+// Mock Logger
+vi.mock('../utils/logger', () => createLoggerMockFactory());
+
+// Import modules under test
+import { handleUserVotesButton } from '../handlers/userVotesButtonHandler';
+import { PollService } from '../services/pollService';
 
 const mockAck = vi.fn();
 const mockUpdate = vi.fn();
@@ -115,7 +122,7 @@ describe('handleUserVotesButton', () => {
   });
 
   it('should acknowledge and show modal with user votes', async () => {
-    vi.mocked(PollService.prototype.getById).mockResolvedValueOnce(mockPoll);
+    vi.spyOn(PollService.prototype, 'getById').mockResolvedValueOnce(mockPoll);
 
     await handleUserVotesButton(baseArgs);
 
@@ -157,7 +164,7 @@ describe('handleUserVotesButton', () => {
   });
 
   it('should handle case when poll is not found', async () => {
-    vi.mocked(PollService.prototype.getById).mockResolvedValueOnce(undefined);
+    vi.spyOn(PollService.prototype, 'getById').mockResolvedValueOnce(undefined);
 
     await handleUserVotesButton(baseArgs);
 
@@ -172,7 +179,7 @@ describe('handleUserVotesButton', () => {
       votes: [],
     };
 
-    vi.mocked(PollService.prototype.getById).mockResolvedValueOnce(noVotesPoll);
+    vi.spyOn(PollService.prototype, 'getById').mockResolvedValueOnce(noVotesPoll);
 
     await handleUserVotesButton(baseArgs);
 

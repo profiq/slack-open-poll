@@ -1,12 +1,12 @@
 import { vi } from 'vitest';
 import { WebClient } from '@slack/web-api';
-import { 
-  ChatPostMessageResponse, 
-  ChatUpdateResponse, 
+import {
+  ChatPostMessageResponse,
+  ChatUpdateResponse,
   ChatPostEphemeralResponse,
   ConversationsOpenResponse,
   ViewsOpenResponse,
-  ViewsUpdateResponse
+  ViewsUpdateResponse,
 } from '@slack/web-api';
 
 /**
@@ -184,6 +184,7 @@ export class SlackApiResponseBuilder {
 export function createMockSlackWebClient() {
   const mockPostMessage = vi.fn();
   const mockUpdate = vi.fn();
+  const mockDelete = vi.fn();
   const mockPostEphemeral = vi.fn();
   const mockConversationsOpen = vi.fn();
   const mockConversationsHistory = vi.fn();
@@ -194,6 +195,7 @@ export function createMockSlackWebClient() {
     chat: {
       postMessage: mockPostMessage,
       update: mockUpdate,
+      delete: mockDelete,
       postEphemeral: mockPostEphemeral,
     },
     conversations: {
@@ -216,6 +218,7 @@ export function createMockSlackWebClient() {
     mocks: {
       postMessage: mockPostMessage,
       update: mockUpdate,
+      delete: mockDelete,
       postEphemeral: mockPostEphemeral,
       conversationsOpen: mockConversationsOpen,
       conversationsHistory: mockConversationsHistory,
@@ -242,7 +245,7 @@ export function setupDefaultSlackResponses(mocks: ReturnType<typeof createMockSl
  * Resets all mock functions
  */
 export function resetSlackMocks(mocks: ReturnType<typeof createMockSlackWebClient>['mocks']) {
-  Object.values(mocks).forEach(mock => {
+  Object.values(mocks).forEach((mock) => {
     mock.mockReset();
   });
 }

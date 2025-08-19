@@ -7,13 +7,14 @@ This guide explains how to properly set up unit tests to prevent Firebase/Google
 When running unit tests that import modules using Firebase Admin SDK, you may encounter this error:
 
 ```
-Error: Unable to detect a Project Id in the current environment. 
-To learn more about authentication and Google APIs, visit: 
+Error: Unable to detect a Project Id in the current environment.
+To learn more about authentication and Google APIs, visit:
 https://cloud.google.com/docs/authentication/getting-started
     at GoogleAuth.findAndCacheProjectId
 ```
 
 This happens because:
+
 1. Firebase Admin SDK tries to authenticate with Google Cloud services during module initialization
 2. The `firebase.ts` file executes `admin.initializeApp()` and `firestore.listCollections()` at import time
 3. Unit tests should not make real network calls or require cloud authentication

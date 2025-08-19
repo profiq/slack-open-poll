@@ -142,7 +142,7 @@ export function mockFirestoreService() {
 export function setupUnitTestMocks() {
   mockFirebaseServices();
   mockLogger();
-  
+
   return {
     pollService: mockPollService(),
     firestoreService: mockFirestoreService(),

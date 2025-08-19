@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handleFormCreation } from '../../src/handlers/customFormHandler';
 import { App, BlockAction, ButtonAction, SlackActionMiddlewareArgs } from '@slack/bolt';
+import { createLoggerMockFactory } from './mocks/commonMocks';
+
+// Hoist Logger mock to avoid real logging
+vi.mock('../utils/logger', () => createLoggerMockFactory());
+
+import { handleFormCreation } from '../../src/handlers/customFormHandler';
 
 describe('handleFormCreation', () => {
   const ack = vi.fn();

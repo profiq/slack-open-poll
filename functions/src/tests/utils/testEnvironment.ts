@@ -1,7 +1,6 @@
 import { vi, beforeEach, afterEach, expect } from 'vitest';
 import { createMockSlackWebClient, setupDefaultSlackResponses, resetSlackMocks } from '../mocks/slackWebClient';
 
-
 /**
  * Test environment setup for Slack webhook integration tests
  */
