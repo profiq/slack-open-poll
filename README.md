@@ -133,6 +133,41 @@ firebase deploy --only functions
 ```
 - Then it will ask you about clean up policy - just type `1` and enter
 
+
+#### 4.3 Monorepo dev shortcuts
+
+- Start web dev server and all emulators together (from repo root):
+```bash
+npm run dev
+```
+- Start only emulators (builds functions first):
+```bash
+npm run emulators
+```
+- Start emulators without rebuilding functions:
+```bash
+npm run emulators:only
+```
+- Run apps in isolation (handy for targeted development):
+  - Functions only:
+    - Build once:
+      ```bash
+      npm run build:functions
+      ```
+    - Watch/build in functions only (from functions/):
+      ```bash
+      cd functions
+      npm run build:watch
+      ```
+    - Start only functions + firestore emulators (classic):
+      ```bash
+      firebase emulators:start --only functions,firestore
+      ```
+  - Web only:
+    ```bash
+    npm -w web run dev
+    ```
+
 #### 4.2 Local Development with Firebase Emulator + ngrok tunnel
 - Go to the `.env` file and paste `DEFAULT_FUNCTIONS_LOCATION=us-central1` or insert another locations
 - Now in terminal:
@@ -150,9 +185,17 @@ firebase use --add
 firebase use
 firebase use project-you-want-to-use
 ```
-- Now run emulator
+- Now run emulators (from the repository root)
 ```bash
-firebase emulators:start --only functions,firestore
+npm run emulators
+```
+- Or, if functions are already built and you just want to restart emulators:
+```bash
+npm run emulators:only
+```
+- Alternatively, using Firebase CLI directly:
+```bash
+firebase emulators:start --only auth,functions,firestore
 ```
 - In terminal find something like
 ```bash
@@ -338,7 +381,7 @@ Template:
 ```
 Example:
 ```
-/poll "When would be the right time for a meeting?" 10 AM, 2 PM, 4 PM, 6 PM 
+/poll "When would be the right time for a meeting?" 10 AM, 2 PM, 4 PM, 6 PM
 ```
 
 ## Vote Handler
@@ -361,12 +404,12 @@ If user votes again for different option:
 
 ## Open Button
 
-`Open` button in every Slack poll opens a form with poll options  
+`Open` button in every Slack poll opens a form with poll options
 There are two buttons:
 - `Your Votes`:
   - Shows your own options, which you have voted for
-- `Settings`:  
-  Only the creator of the poll can access this form  
+- `Settings`:
+  Only the creator of the poll can access this form
   Opens two buttons:
   - `Close Poll`:
     - Closes the poll (poll.closed)

@@ -17,9 +17,15 @@
     "lint:functions": "npm -w functions run lint",
     "lint:web": "npm -w web run lint",
     "build:functions": "npm -w functions run build",
-    "build:web": "npm -w web run build"
+    "build:web": "npm -w web run build",
+    "emulators": "npm run build:functions && npm -w functions exec -- firebase emulators:start --only auth,functions,firestore",
+    "emulators:only": "npm -w functions exec -- firebase emulators:start --only auth,functions,firestore",
+    "dev": "concurrently -n WEB,EMU -c blue,magenta \"npm -w web run dev\" \"npm run emulators\""
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "concurrently": "^9.2.0",
     "husky": "^9.1.7"
   },
   "author": "",

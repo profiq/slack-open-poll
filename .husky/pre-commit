@@ -4,6 +4,7 @@ if [ "$(git symbolic-ref --short HEAD)" = "main" ]; then
   echo "Cannot commit to main branch"
   exit 1
 fi
-# Run lint check
-cd functions
-lint-staged
+# Run lint-staged in the functions workspace using npm workspace exec
+npm -w functions exec -- lint-staged
+# Run lint-staged in the web workspace as well
+npm -w web exec -- lint-staged
