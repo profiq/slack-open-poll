@@ -86,7 +86,8 @@ describe('handleCustomOptionSubmit', () => {
     // Spy on PollService instance methods
     const runTransactionSpy = vi
       .spyOn(PollService.prototype, 'runTransaction')
-      .mockImplementation(async (cb: (t: unknown) => unknown) => cb({}));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation(async (cb: any) => cb({}));
     const getInTransactionSpy = vi.spyOn(PollService.prototype, 'getInTransaction').mockResolvedValue({
       question: 'Q',
       createdBy: 'U1',

@@ -13,18 +13,20 @@ export function spyPollVote(error?: Error) {
   return vi.spyOn(PollService.prototype, 'vote').mockResolvedValue(undefined);
 }
 
-interface MockDoc {
-  get: () => Promise<{ data: () => unknown }>;
-}
-export function spyPollCreate(mockDoc?: MockDoc) {
-  const defaultDoc: MockDoc = { get: async () => ({ data: () => ({ id: 'mock', question: 'Q', options: [] }) }) };
-  return vi.spyOn(PollService.prototype, 'create').mockResolvedValue(mockDoc ?? defaultDoc);
+export function spyPollCreate(mockRef?: FirebaseFirestore.DocumentReference<Poll>) {
+  const defaultRef = {
+    get: async () => ({ data: () => ({ id: 'mock', question: 'Q', options: [] }) }),
+  } as unknown as FirebaseFirestore.DocumentReference<Poll>;
+  return vi.spyOn(PollService.prototype, 'create').mockResolvedValue(mockRef ?? defaultRef);
 }
 
 export function spyPollRunTransaction(impl?: (cb: unknown) => Promise<unknown>) {
-  return vi
-    .spyOn(PollService.prototype, 'runTransaction')
-    .mockImplementation(async (cb: unknown) => (impl ? impl(cb) : (cb as (t: unknown) => unknown)({})) as unknown);
+  return (
+    vi
+      .spyOn(PollService.prototype, 'runTransaction')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation(async (cb: any) => (impl ? impl(cb) : cb({})) as unknown)
+  );
 }
 
 export function spyPollGetInTransaction(poll?: Partial<Poll> | undefined) {
