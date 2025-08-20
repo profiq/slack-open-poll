@@ -1,5 +1,6 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,6 +15,7 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 const useEmulator = Boolean(import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_HOST);
 
@@ -23,5 +25,14 @@ if (useEmulator) {
     connectAuthEmulator(auth, `http://${host}:${port}`);
 }
 
+const useDbEmulator = Boolean(import.meta.env.VITE_FIRESTORE_EMULATOR_HOST);
 
-export { auth };
+if (useDbEmulator) {
+    const host = import.meta.env.VITE_FIRESTORE_EMULATOR_HOST ?? "localhost";
+    const port = Number(import.meta.env.VITE_FIRESTORE_EMULATOR_PORT ?? 8080);
+    connectFirestoreEmulator(db, host, port);
+}
+
+
+
+export { auth, db };

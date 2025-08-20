@@ -4,6 +4,6 @@ import { globalIgnores } from 'eslint/config';
 
 export default [
   // Ignore common build output across workspaces
-  globalIgnores(['**/node_modules', '**/dist', '**/lib']),
+  globalIgnores(['**/node_modules', '**/dist', 'functions/lib']),
 ];
 
