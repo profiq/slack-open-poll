@@ -34,5 +34,4 @@ if (useDbEmulator) {
 }
 
 
-
 export { auth, db };
