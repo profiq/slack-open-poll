@@ -34,5 +34,13 @@
       "port": 4000
     },
     "singleProjectMode": true
+  },
+  "hosting": {
+    "public": "web/dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
   }
 }
