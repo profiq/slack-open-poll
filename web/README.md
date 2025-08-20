@@ -40,7 +40,7 @@ npm run lint
 1. Create or select a Firebase project
 2. In the Firebase Console: Build → Authentication → Get started
 3. Enable Google sign-in provider
-    1. To control who can login to the application you can set the Google Login to internal domains only https://console.cloud.google.com/auth/audience
+   1. To control who can login to the application you can set the Google Login to internal domains only https://console.cloud.google.com/auth/audience
 4. Add your web app to the Firebase project
 5. Register your app with a nickname
 6. Create a `.env` file in the `web/` with the following content from `.env.example` copy insert data from (Project setting -> Your apps) `firebaseConfig`
@@ -112,6 +112,23 @@ export function MyComponent() {
 }
 ````
 
+## Setup cloud Firebase
+
+1. Cloud Firestore -> Rules
+   - Copy to rules permissons for cloud firestore:
+
+```bash
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /polls/{pollId} {
+      allow read, write: if true;
+    }
+  }
+}
+```
+
 ### Customizing Components
 
 Components are copied to your project, so you can customize them as needed:
@@ -125,14 +142,10 @@ Components are copied to your project, so you can customize them as needed:
 The project includes a `cn()` utility function in `src/lib/utils.ts` for conditional class names:
 
 ```tsx
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
 // Combine classes conditionally
-const buttonClass = cn(
-  "base-button-styles",
-  isActive && "active-styles",
-  className
-);
+const buttonClass = cn('base-button-styles', isActive && 'active-styles', className);
 ```
 
 ### Icons
@@ -140,7 +153,7 @@ const buttonClass = cn(
 The project uses Lucide React for icons:
 
 ```tsx
-import { ChevronRight, User, Settings } from "lucide-react";
+import { ChevronRight, User, Settings } from 'lucide-react';
 
 export function MyComponent() {
   return (
