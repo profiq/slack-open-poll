@@ -1,18 +1,36 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handleClosePoll } from '../handlers/pollCloseHandler';
 import type { SlackActionMiddlewareArgs, BlockAction, ButtonAction, App } from '@slack/bolt';
-import { PollService } from '../services/pollService';
-import { pollResultBlock } from '../components/pollResult';
-import { pollDisplayBlock } from '../components/pollDisplay';
 import { WebClient } from '@slack/web-api';
 
-vi.mock('../services/pollService');
+// Hoisted mocks for Firebase to avoid real initialization and Firestore calls
+vi.mock('../firebase', () => ({
+  firestore: {
+    collection: vi.fn(() => ({
+      withConverter: vi.fn(() => ({
+        doc: vi.fn(() => ({
+          get: vi.fn(),
+          update: vi.fn(),
+          delete: vi.fn(),
+          set: vi.fn(),
+        })),
+        add: vi.fn(),
+        get: vi.fn(),
+      })),
+    })),
+    runTransaction: vi.fn(),
+    listCollections: vi.fn().mockResolvedValue([]),
+  },
+}));
+
+// Mock UI block builders
 vi.mock('../components/pollResult', () => ({
   pollResultBlock: vi.fn(() => [{ type: 'section', text: { type: 'mrkdwn', text: 'Results' } }]),
 }));
 vi.mock('../components/pollDisplay', () => ({
   pollDisplayBlock: vi.fn(() => [{ type: 'section', text: { type: 'mrkdwn', text: 'Poll Display' } }]),
 }));
+
+// Mock our Logger (for asserting error/info calls)
 const mockLoggerError = vi.fn();
 vi.mock('../utils/logger', () => ({
   Logger: vi.fn(() => ({
@@ -23,6 +41,12 @@ vi.mock('../utils/logger', () => ({
     debug: vi.fn(),
   })),
 }));
+
+// Import modules under test (mocks above are hoisted by Vitest)
+import { handleClosePoll } from '../handlers/pollCloseHandler';
+import { PollService } from '../services/pollService';
+import { pollResultBlock } from '../components/pollResult';
+import { pollDisplayBlock } from '../components/pollDisplay';
 
 const mockAck = vi.fn();
 const mockPostMessage = vi.fn();

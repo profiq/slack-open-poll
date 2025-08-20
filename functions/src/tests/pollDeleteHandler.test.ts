@@ -1,22 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handleDeletePoll } from '../handlers/pollDeleteHandler';
 import type { SlackActionMiddlewareArgs, BlockAction, ButtonAction } from '@slack/bolt';
-import { PollService } from '../services/pollService';
 import { WebClient } from '@slack/web-api';
+import { firebaseMockFactory, createLoggerMockFactory } from './mocks/commonMocks';
 
-vi.mock('../services/pollService');
+const { mockLoggerError } = vi.hoisted(() => ({ mockLoggerError: vi.fn() }));
+
+// Hoist mocks BEFORE importing modules under test
+vi.mock('../firebase', () => firebaseMockFactory());
+vi.mock('../utils/logger', () => createLoggerMockFactory({ error: mockLoggerError }));
+
+// Import modules under test
+import { handleDeletePoll } from '../handlers/pollDeleteHandler';
+import { PollService } from '../services/pollService';
 
 const mockAck = vi.fn();
 const mockChatDelete = vi.fn();
 const mockViewsUpdate = vi.fn();
-const mockLoggerError = vi.fn();
-
-vi.mock('../utils/logger', () => ({
-  Logger: vi.fn(() => ({
-    withContext: vi.fn().mockReturnThis(),
-    error: mockLoggerError,
-  })),
-}));
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -28,6 +27,9 @@ const mockClient = {
   },
   views: {
     update: mockViewsUpdate,
+  },
+  conversations: {
+    history: vi.fn(),
   },
 } as unknown as WebClient;
 

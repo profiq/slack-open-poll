@@ -1,2 +1,3 @@
-cd functions
+# Run commitlint from the repo root (commitlint is installed at root)
+. .husky/_/husky.sh
 commitlint --edit $1

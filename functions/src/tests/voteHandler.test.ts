@@ -1,11 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { SlackAction } from '@slack/bolt';
+import { WebClient } from '@slack/web-api';
+import { firebaseMockFactory, createLoggerMockFactory } from './mocks/commonMocks';
+
+// Hoist firebase mock to avoid real initialization
+vi.mock('../firebase', () => firebaseMockFactory());
+
+// Mock Logger
+vi.mock('../utils/logger', () => createLoggerMockFactory());
+
+// Import modules under test
 import { handleVoteAction } from '../handlers/voteHandler';
 import { PollService } from '../services/pollService';
-import { SlackAction } from '@slack/bolt';
 import { pollDisplayBlock } from '../components/pollDisplay';
-import { WebClient } from '@slack/web-api';
 
-vi.mock('../services/pollService');
 vi.mock('../components/pollDisplay');
 
 const mockPostMessage = vi.fn();

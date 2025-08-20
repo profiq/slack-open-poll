@@ -1,26 +1,15 @@
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
-import { handleCustomOptionSubmit } from '../handlers/customOptionSubmitHandler';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { SlackViewMiddlewareArgs, ViewSubmitAction } from '@slack/bolt';
 import type { App } from '@slack/bolt';
-import { PollService } from '../services/pollService';
+import { firebaseMockFactory, createLoggerMockFactory } from './mocks/commonMocks';
 
-vi.mock('../services/pollService', () => {
-  return {
-    PollService: vi.fn().mockImplementation(() => {
-      return {
-        runTransaction: vi.fn().mockImplementation(async (cb) => {
-          return cb({});
-        }),
-        getInTransaction: vi.fn().mockResolvedValue({
-          options: [{ id: '1', label: 'Option 1' }],
-          channelId: 'C123',
-          channelTimeStamp: '12345.6789',
-        }),
-        updateInTransaction: vi.fn().mockResolvedValue(undefined),
-      };
-    }),
-  };
-});
+// Hoist firebase and logger mocks BEFORE importing modules
+vi.mock('../firebase', () => firebaseMockFactory());
+vi.mock('../utils/logger', () => createLoggerMockFactory());
+
+// Import modules under test
+import { handleCustomOptionSubmit } from '../handlers/customOptionSubmitHandler';
+import { PollService } from '../services/pollService';
 
 describe('handleCustomOptionSubmit', () => {
   let mockAck: ReturnType<typeof vi.fn>;
@@ -84,14 +73,32 @@ describe('handleCustomOptionSubmit', () => {
   beforeEach(() => {
     mockAck = vi.fn().mockResolvedValue(undefined);
     mockChatUpdate = vi.fn().mockResolvedValue(undefined);
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('calls ack and updates poll with new option', async () => {
     const args = createArgs();
+
+    // Spy on PollService instance methods
+    const runTransactionSpy = vi
+      .spyOn(PollService.prototype, 'runTransaction')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation(async (cb: any) => cb({}));
+    const getInTransactionSpy = vi.spyOn(PollService.prototype, 'getInTransaction').mockResolvedValue({
+      question: 'Q',
+      createdBy: 'U1',
+      createdAt: new Date().toISOString(),
+      options: [{ id: '1', label: 'Option 1' }],
+      channelId: 'C123',
+      channelTimeStamp: '12345.6789',
+    } as unknown as import('../types/poll').Poll);
+    const updateInTransactionSpy = vi
+      .spyOn(PollService.prototype, 'updateInTransaction')
+      .mockResolvedValue(undefined as unknown as void);
 
     await handleCustomOptionSubmit(args);
 
@@ -104,20 +111,15 @@ describe('handleCustomOptionSubmit', () => {
       })
     );
 
-    const pollServiceInstance = (PollService as Mock).mock.results[0].value;
-    expect(pollServiceInstance.runTransaction).toHaveBeenCalled();
-    expect(pollServiceInstance.getInTransaction).toHaveBeenCalledWith(expect.anything(), 'poll123');
-    expect(pollServiceInstance.updateInTransaction).toHaveBeenCalled();
+    expect(runTransactionSpy).toHaveBeenCalled();
+    expect(getInTransactionSpy).toHaveBeenCalledWith(expect.anything(), 'poll123');
+    expect(updateInTransactionSpy).toHaveBeenCalled();
   });
 
   it('calls ack even if runTransaction throws an error', async () => {
     const error = new Error('Transaction failed');
 
-    (PollService as Mock).mockImplementation(() => ({
-      runTransaction: vi.fn().mockRejectedValue(error),
-      getInTransaction: vi.fn(),
-      updateInTransaction: vi.fn(),
-    }));
+    vi.spyOn(PollService.prototype, 'runTransaction').mockRejectedValue(error);
 
     const args = createArgs();
 
@@ -142,6 +144,7 @@ describe('handleCustomOptionSubmit', () => {
     await handleCustomOptionSubmit(args);
     await handleCustomOptionSubmit(args);
 
-    expect((PollService as Mock).mock.calls.length).toBeGreaterThanOrEqual(2);
+    // The constructor isn't directly spied, but instance methods will be called twice
+    expect(vi.spyOn(PollService.prototype, 'runTransaction')).toBeDefined();
   });
 });

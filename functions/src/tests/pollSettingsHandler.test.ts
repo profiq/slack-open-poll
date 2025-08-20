@@ -1,10 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handlePollSettingsButton } from '../handlers/pollSettingsHandler';
 import type { SlackActionMiddlewareArgs, BlockAction, BlockElementAction, RespondFn, SayFn } from '@slack/bolt';
 import { WebClient } from '@slack/web-api';
-import { PollService } from '../services/pollService';
+import { firebaseMockFactory, createLoggerMockFactory } from './mocks/commonMocks';
 
-vi.mock('../services/pollService');
+// Hoist firebase mock to avoid real initialization
+vi.mock('../firebase', () => firebaseMockFactory());
+
+// Mock Logger
+const { mockLoggerError } = vi.hoisted(() => ({ mockLoggerError: vi.fn() }));
+vi.mock('../utils/logger', () => createLoggerMockFactory({ error: mockLoggerError }));
+
+// Import modules under test
+import { handlePollSettingsButton } from '../handlers/pollSettingsHandler';
+import { PollService } from '../services/pollService';
 
 const mockAck = vi.fn();
 const mockUpdate = vi.fn();
@@ -14,16 +22,6 @@ const mockClient = {
     update: mockUpdate,
   },
 } as unknown as WebClient;
-
-const mockLoggerError = vi.fn();
-vi.mock('../utils/logger', () => {
-  return {
-    Logger: vi.fn(() => ({
-      withContext: vi.fn().mockReturnThis(),
-      error: mockLoggerError,
-    })),
-  };
-});
 
 const actionPayload: BlockElementAction = {
   type: 'button',

@@ -1,13 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handlePollCommand } from '../handlers/pollCreationHandler';
-import { PollService } from '../services/pollService';
-import { pollDisplayBlock } from '../components/pollDisplay';
 import { AllMiddlewareArgs, SlackCommandMiddlewareArgs, SlashCommand, StringIndexed } from '@slack/bolt';
 import { AnyBlock } from '@slack/types';
 import { Logger } from '@slack/logger';
 import { WebClient } from '@slack/web-api';
+import { firebaseMockFactory, createLoggerMockFactory } from './mocks/commonMocks';
 
-vi.mock('../services/pollService');
+// Hoist firebase + logger mocks BEFORE imports
+vi.mock('../firebase', () => firebaseMockFactory());
+vi.mock('../utils/logger', () => createLoggerMockFactory());
+
+import { handlePollCommand } from '../handlers/pollCreationHandler';
+import { PollService } from '../services/pollService';
+import { pollDisplayBlock } from '../components/pollDisplay';
+
 vi.mock('../components/pollDisplay');
 
 const mockPostEphemeral = vi.fn();

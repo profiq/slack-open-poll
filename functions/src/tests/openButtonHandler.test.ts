@@ -1,83 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { App, BlockAction, ButtonAction, SlackActionMiddlewareArgs } from '@slack/bolt';
+import { firebaseMockFactory, createLoggerMockFactory } from './mocks/commonMocks';
 
-// Mock Firebase Admin SDK before any imports
-vi.mock('firebase-admin', () => ({
-  default: {
-    initializeApp: vi.fn(),
-    firestore: vi.fn(() => ({
-      collection: vi.fn(() => ({
-        withConverter: vi.fn(() => ({
-          doc: vi.fn(() => ({
-            get: vi.fn(),
-            update: vi.fn(),
-            delete: vi.fn(),
-            set: vi.fn(),
-          })),
-          add: vi.fn(),
-          get: vi.fn(),
-        })),
-      })),
-      runTransaction: vi.fn(),
-      listCollections: vi.fn().mockResolvedValue([]),
-    })),
-  },
-}));
+// Hoist firebase mock to avoid real initialization
+vi.mock('../firebase', () => firebaseMockFactory());
 
-// Mock Firebase Functions Logger
-vi.mock('firebase-functions/logger', () => ({
-  debug: vi.fn(),
-  info: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-}));
-
-// Mock the firebase.ts file to prevent initialization
-vi.mock('../firebase', () => ({
-  firestore: {
-    collection: vi.fn(() => ({
-      withConverter: vi.fn(() => ({
-        doc: vi.fn(() => ({
-          get: vi.fn(),
-          update: vi.fn(),
-          delete: vi.fn(),
-          set: vi.fn(),
-        })),
-        add: vi.fn(),
-        get: vi.fn(),
-      })),
-    })),
-    runTransaction: vi.fn(),
-    listCollections: vi.fn().mockResolvedValue([]),
-  },
-}));
-
-// Mock PollService
-const mockGetById = vi.fn();
-vi.mock('../services/pollService', () => ({
-  PollService: vi.fn().mockImplementation(() => ({
-    getById: mockGetById,
-    create: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-    vote: vi.fn(),
-  })),
-}));
-
-// Mock Logger to prevent Firebase Functions logger calls
-vi.mock('../utils/logger', () => ({
-  Logger: vi.fn().mockImplementation(() => ({
-    withContext: vi.fn().mockReturnThis(),
-    startTimer: vi.fn().mockReturnValue(Date.now()),
-    endTimer: vi.fn(),
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-  })),
-}));
+// Mock Logger
+vi.mock('../utils/logger', () => createLoggerMockFactory());
 
 import { handleOpenButton } from '../handlers/openButtonHandler';
-import { App, BlockAction, ButtonAction, SlackActionMiddlewareArgs } from '@slack/bolt';
+import { PollService } from '../services/pollService';
 import { createMockPoll, createMockSlackBody } from './utils/unitTestSetup';
 
 describe('handleOpenButton', () => {
@@ -116,8 +48,8 @@ describe('handleOpenButton', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Setup PollService mock to return the mock poll
-    mockGetById.mockResolvedValue(mockPoll);
+    // Setup PollService spy to return the mock poll
+    vi.spyOn(PollService.prototype, 'getById').mockResolvedValue(mockPoll);
   });
 
   it('acknowledges the button click and opens a modal', async () => {
@@ -195,7 +127,7 @@ describe('handleOpenButton', () => {
   });
 
   it('throws an error if poll is not found', async () => {
-    mockGetById.mockResolvedValue(null);
+    vi.spyOn(PollService.prototype, 'getById').mockResolvedValue(null);
 
     await expect(handleOpenButton(args)).rejects.toThrow();
 
@@ -205,7 +137,7 @@ describe('handleOpenButton', () => {
 
   it('shows creator view when user is poll creator', async () => {
     const creatorPoll = { ...mockPoll, createdBy: 'U123456' };
-    mockGetById.mockResolvedValue(creatorPoll);
+    vi.spyOn(PollService.prototype, 'getById').mockResolvedValue(creatorPoll);
 
     await handleOpenButton(args);
 
@@ -227,7 +159,7 @@ describe('handleOpenButton', () => {
 
   it('shows user view when user is not poll creator', async () => {
     const nonCreatorPoll = { ...mockPoll, createdBy: 'U999999' };
-    mockGetById.mockResolvedValue(nonCreatorPoll);
+    vi.spyOn(PollService.prototype, 'getById').mockResolvedValue(nonCreatorPoll);
 
     await handleOpenButton(args);
 
