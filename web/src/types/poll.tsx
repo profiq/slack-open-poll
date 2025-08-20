@@ -1,6 +1,7 @@
 import type {BaseDocument} from './baseDocument.tsx';
 
 export interface Poll extends BaseDocument {
+    id: string;
     question: string;
     options: PollOption[];
     createdBy: string;
