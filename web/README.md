@@ -118,12 +118,11 @@ export function MyComponent() {
    - Copy to rules permissons for cloud firestore:
 
 ```bash
-rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
     match /polls/{pollId} {
-      allow read, write: if true;
+      allow read: if request.auth != null;
+      allow write: if false;
     }
   }
 }
