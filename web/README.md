@@ -112,12 +112,12 @@ export function MyComponent() {
 }
 ````
 
-## Setup cloud Firebase
+## Set up Cloud Firestore
 
-1. Cloud Firestore -> Rules
-   - Copy to rules permissons for cloud firestore:
+1. Cloud Firestore → Rules
+   - Copy these rules:
 
-```bash
+```rules
 service cloud.firestore {
   match /databases/{database}/documents {
     match /polls/{pollId} {
