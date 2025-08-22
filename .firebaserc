@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "sp-open-poll",
+    "default": "",
     "staging": ""
   },
   "targets": {},

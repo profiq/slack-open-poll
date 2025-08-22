@@ -179,4 +179,4 @@ jobs:
 
       - name: Deploy to Firebase (Functions + Hosting)
         run: |
-          firebase deploy --only functions, hosting
+          firebase deploy --only functions,hosting
