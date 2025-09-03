@@ -6,7 +6,6 @@ import {
 } from 'firebase-admin/firestore';
 import { firestore } from '../firebase';
 import { BaseDocument } from '../types/baseDocument';
-import { type Channel, type User } from '../types/poll';
 
 export const converter = <T>(): FirestoreDataConverter<T> => ({
   toFirestore: (data: PartialWithFieldValue<T>) => data ?? {},
@@ -83,75 +82,5 @@ export class FirestoreService<T extends BaseDocument> {
   deleteInTransaction(transaction: Transaction, id: string) {
     const docRef = this.getDocRef(id);
     transaction.delete(docRef);
-  }
-}
-
-export class UserService extends FirestoreService<User> {
-  constructor() {
-    super('users_list');
-  }
-
-  async addUser(user: Omit<User, 'createdAt'>) {
-    console.log('Adding user:', user);
-
-    if (!user.id) {
-      console.error('User ID is missing! Cannot save user.');
-      return null;
-    }
-
-    const existing = await this.getById(user.id);
-    console.log('Existing user:', existing);
-
-    if (!existing) {
-      const timestamp = new Date().toISOString();
-      const dataWithTimestamp = { ...user, createdAt: timestamp } as User;
-      const docRef = this.getDocRef(user.id);
-
-      try {
-        await docRef.set(dataWithTimestamp);
-        console.log('User saved:', dataWithTimestamp);
-      } catch (e) {
-        console.error('Failed to save user:', e);
-      }
-
-      return dataWithTimestamp;
-    }
-
-    return existing;
-  }
-}
-
-export class ChannelService extends FirestoreService<Channel> {
-  constructor() {
-    super('channels_list');
-  }
-
-  async addChannel(channel: Omit<Channel, 'createdAt'>) {
-    console.log('Adding channel:', channel);
-
-    if (!channel.id) {
-      console.error('Channel ID is missing! Cannot save channel.');
-      return null;
-    }
-
-    const existing = await this.getById(channel.id);
-    console.log('Existing channel:', existing);
-
-    if (!existing) {
-      const timestamp = new Date().toISOString();
-      const dataWithTimestamp = { ...channel, createdAt: timestamp } as Channel;
-      const docRef = this.getDocRef(channel.id);
-
-      try {
-        await docRef.set(dataWithTimestamp);
-        console.log('Channel saved:', dataWithTimestamp);
-      } catch (e) {
-        console.error('Failed to save channel:', e);
-      }
-
-      return dataWithTimestamp;
-    }
-
-    return existing;
   }
 }

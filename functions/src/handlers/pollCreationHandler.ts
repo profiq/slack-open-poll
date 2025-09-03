@@ -6,7 +6,8 @@ import { AllMiddlewareArgs, SlackCommandMiddlewareArgs } from '@slack/bolt';
 import { Logger } from '../utils/logger';
 import { extractQuotedText, parseFlags, parseOptions, getParsingErrorMessage } from '../utils/commandParser';
 import { pollFormCreate } from '../components/pollFormCreate';
-import { ChannelService, UserService } from '../services/firestoreService';
+import { UserService } from '../services/firestoreUserService';
+import { ChannelService } from '../services/firestoreChannelService';
 
 export const handlePollCommand = async ({
   command,
