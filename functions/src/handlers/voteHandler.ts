@@ -146,6 +146,11 @@ export const handleVoteAction = async ({
 
   const userService = new UserService();
 
+  if (!client.users?.info) {
+    console.warn('Slack client missing users.info');
+    return;
+  }
+
   const userInfo = await client.users.info({ user: body.user.id });
 
   if (!userInfo.user) {
