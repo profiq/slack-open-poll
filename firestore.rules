@@ -1,6 +1,20 @@
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Polls
     match /polls/{pollId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Users list
+    match /users_list/{userId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Channels list
+    match /channels_list/{channelId} {
       allow read: if request.auth != null;
       allow write: if false;
     }

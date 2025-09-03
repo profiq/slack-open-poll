@@ -6,6 +6,7 @@ import { AllMiddlewareArgs, SlackCommandMiddlewareArgs } from '@slack/bolt';
 import { Logger } from '../utils/logger';
 import { extractQuotedText, parseFlags, parseOptions, getParsingErrorMessage } from '../utils/commandParser';
 import { pollFormCreate } from '../components/pollFormCreate';
+import { ChannelService, UserService } from '../services/firestoreService';
 
 export const handlePollCommand = async ({
   command,
@@ -142,6 +143,53 @@ export const handlePollCommand = async ({
     await pollRef.update({
       channelTimeStamp: postedMessage.ts,
     });
+
+    const userService = new UserService();
+
+    const userInfo = await client.users.info({ user: command.user_id });
+
+    if (!userInfo.user) {
+      console.error('Failed to get info about user');
+      return;
+    }
+
+    const user = {
+      id: command.user_id,
+      name: userInfo.user.real_name || userInfo.user.name || 'Unknown',
+    };
+
+    try {
+      await userService.addUser(user);
+      log.info('User saved to users_list', { userId: user.id });
+    } catch {
+      log.warn('Failed to save user to users_list');
+    }
+
+    const channelService = new ChannelService();
+
+    const channelInfo = await client.conversations.info({
+      channel: command.channel_id,
+    });
+
+    if (!channelInfo.channel) {
+      console.error('Failed to get info about channel');
+      return;
+    }
+
+    const channelData = channelInfo.channel;
+
+    const channel = {
+      id: command.channel_id,
+      name: channelData.name || 'Unknown',
+    };
+
+    try {
+      await channelService.addChannel(channel);
+      log.info('Channel saved to channels_list', { workspaceId: command.channel_id });
+    } catch (e) {
+      console.error('Failed to save channel', e);
+      log.warn('Failed to save channel to channels_list');
+    }
   } catch (error) {
     log.error(String(error));
 

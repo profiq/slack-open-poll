@@ -28,3 +28,13 @@ export interface Vote {
     userId: string;
     optionId: string;
 }
+
+export interface User extends BaseDocument {
+  id: string;
+  name: string;
+}
+
+export interface Channel extends BaseDocument {
+  id: string;
+  name: string;
+}
