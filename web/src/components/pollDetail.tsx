@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { collection, doc, onSnapshot, DocumentReference } from 'firebase/firestore';
+import { collection, doc, onSnapshot } from 'firebase/firestore';
 import { db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,9 +33,15 @@ export default function PollDetail() {
               typeof data.createdAt === "string"
                 ? data.createdAt
                 : data.createdAt?.toDate().toISOString(),
-            createdBy: data.createdBy instanceof DocumentReference ? data.createdBy.id : data.createdBy,
+            createdBy:
+              typeof data.createdBy === 'object' && data.createdBy !== null
+                ? (data.createdBy as { id: string }).id
+                : (data.createdBy as string),
             channelTimeStamp: data.channelTimeStamp,
-            channelId: data.channelId instanceof DocumentReference ? data.channelId.id : data.channelId,
+            channelId:
+              typeof data.channelId === 'object' && data.channelId !== null
+                ? (data.channelId as { id: string }).id
+                : (data.channelId as string),
             votes: data.votes ?? [],
             multiple: data.multiple ?? false,
             maxVotes: data.maxVotes ?? 1,

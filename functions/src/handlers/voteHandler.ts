@@ -144,26 +144,25 @@ export const handleVoteAction = async ({
     log.endTimer('voteAction', timerStart);
   }
 
-  const userService = new UserService();
-
   if (!client.users?.info) {
     console.warn('Slack client missing users.info');
     return;
   }
 
-  const userInfo = await client.users.info({ user: body.user.id });
-
-  if (!userInfo.user) {
-    console.error('Failed to get info about user');
-    return;
-  }
-
-  const user = {
-    id: body.user.id,
-    name: userInfo.user.real_name || userInfo.user.name || 'Unknown',
-  };
-
   try {
+    const userService = new UserService();
+    const userInfo = await client.users.info({ user: body.user.id });
+
+    if (!userInfo.user) {
+      console.error('Failed to get info about user');
+      return;
+    }
+
+    const user = {
+      id: body.user.id,
+      name: userInfo.user.real_name || userInfo.user.name || 'Unknown',
+    };
+
     await userService.addUser(user);
     log.info('User saved to users_list', { userId: user.id });
   } catch {

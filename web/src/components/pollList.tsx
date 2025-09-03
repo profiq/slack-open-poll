@@ -55,8 +55,9 @@ export default function ListOfPolls() {
             const ts = createdAtValue as unknown as Timestamp;
             if (ts?.toDate instanceof Function) return ts.toDate().toISOString();
 
-            return new Date().toISOString();
+            return undefined;
           })(),
+          name: raw.name ?? doc.id,
         } as User;
       });
       console.log("Users:", data);
@@ -70,7 +71,6 @@ export default function ListOfPolls() {
   }, []);
 
 
-  // Připravíme si mapu { userId -> userName }
   const userMap = useMemo(() => {
     const map: Record<string, string> = {};
     users.forEach((u) => {
