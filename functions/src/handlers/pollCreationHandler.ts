@@ -145,51 +145,47 @@ export const handlePollCommand = async ({
       channelTimeStamp: postedMessage.ts,
     });
 
-    const userService = new UserService();
-
-    const userInfo = await client.users.info({ user: command.user_id });
-
-    if (!userInfo.user) {
-      console.error('Failed to get info about user');
-      return;
+    if (!client?.users?.info) {
+      log.debug('Slack client missing users.info; skipping user persistence');
+    } else {
+      try {
+        const userService = new UserService();
+        const userInfo = await client.users.info({ user: command.user_id });
+        if (!userInfo.user) {
+          log.error('Failed to get info about user');
+        } else {
+          const user = {
+            id: command.user_id,
+            name: userInfo.user.real_name || userInfo.user.name || 'Unknown',
+          };
+          await userService.addUser(user);
+          log.info('User saved to users_list', { userId: user.id });
+        }
+      } catch {
+        log.warn('Failed to save user to users_list');
+      }
     }
 
-    const user = {
-      id: command.user_id,
-      name: userInfo.user.real_name || userInfo.user.name || 'Unknown',
-    };
-
-    try {
-      await userService.addUser(user);
-      log.info('User saved to users_list', { userId: user.id });
-    } catch {
-      log.warn('Failed to save user to users_list');
-    }
-
-    const channelService = new ChannelService();
-
-    const channelInfo = await client.conversations.info({
-      channel: command.channel_id,
-    });
-
-    if (!channelInfo.channel) {
-      console.error('Failed to get info about channel');
-      return;
-    }
-
-    const channelData = channelInfo.channel;
-
-    const channel = {
-      id: command.channel_id,
-      name: channelData.name || 'Unknown',
-    };
-
-    try {
-      await channelService.addChannel(channel);
-      log.info('Channel saved to channels_list', { workspaceId: command.channel_id });
-    } catch (e) {
-      console.error('Failed to save channel', e);
-      log.warn('Failed to save channel to channels_list');
+    if (!client?.conversations?.info) {
+      log.debug('Slack client missing conversations.info; skipping channel persistence');
+    } else {
+      try {
+        const channelService = new ChannelService();
+        const channelInfo = await client.conversations.info({ channel: command.channel_id });
+        if (!channelInfo.channel) {
+          log.error('Failed to get info about channel');
+        } else {
+          const channelData = channelInfo.channel;
+          const channel = {
+            id: command.channel_id,
+            name: channelData.name || 'Unknown',
+          };
+          await channelService.addChannel(channel);
+          log.info('Channel saved to channels_list');
+        }
+      } catch {
+        log.warn('Failed to save channel to channels_list');
+      }
     }
   } catch (error) {
     log.error(String(error));

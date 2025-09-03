@@ -25,11 +25,11 @@ export class ChannelService extends FirestoreService<Channel> {
       try {
         await docRef.set(dataWithTimestamp);
         console.log('Channel saved:', dataWithTimestamp);
+        return dataWithTimestamp;
       } catch (e) {
         console.error('Failed to save channel:', e);
+        return null;
       }
-
-      return dataWithTimestamp;
     }
 
     return existing;

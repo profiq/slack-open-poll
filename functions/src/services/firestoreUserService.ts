@@ -25,11 +25,11 @@ export class UserService extends FirestoreService<User> {
       try {
         await docRef.set(dataWithTimestamp);
         console.log('User saved:', dataWithTimestamp);
+        return dataWithTimestamp;
       } catch (e) {
         console.error('Failed to save user:', e);
+        return null;
       }
-
-      return dataWithTimestamp;
     }
 
     return existing;
