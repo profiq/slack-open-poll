@@ -1,4 +1,4 @@
-import type { User } from '../types/poll';
+import type { User } from '../types/user';
 import { FirestoreService } from './firestoreService';
 
 export class UserService extends FirestoreService<User> {

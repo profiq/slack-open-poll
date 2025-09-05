@@ -4,8 +4,8 @@ import { PollService } from '../services/pollService';
 import { mrkdwnSection } from '../components/mrkdwnSection';
 import { AnyBlock } from '@slack/types';
 import { pollDisplayBlock } from '../components/pollDisplay';
-import { UserService } from '../services/firestoreUserService';
-import { ChannelService } from '../services/firestoreChannelService';
+import { UserService } from '../services/userService';
+import { ChannelService } from '../services/channelService';
 
 export const handleSubmitCreatePoll = async (
   args: SlackViewMiddlewareArgs<ViewSubmitAction> & { client: App['client'] }

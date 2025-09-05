@@ -29,10 +29,7 @@ export default function PollDetail() {
             id: docSnap.id,
             question: data.question,
             options: data.options ?? [],
-            createdAt:
-              typeof data.createdAt === "string"
-                ? data.createdAt
-                : data.createdAt?.toDate().toISOString(),
+            createdAt: data.createdAt,
             createdBy:
               typeof data.createdBy === 'object' && data.createdBy !== null
                 ? (data.createdBy as { id: string }).id

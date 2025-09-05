@@ -4,7 +4,7 @@ import { Vote } from '../types/poll';
 import { pollDisplayBlock } from '../components/pollDisplay';
 import { Logger, LoggerContext } from '../utils/logger';
 import { z } from 'zod';
-import { UserService } from '../services/firestoreUserService';
+import { UserService } from '../services/userService';
 
 const voteActionValue = z.object({
   pollId: z.string(),

@@ -4,7 +4,8 @@ import { collection, onSnapshot, type DocumentData, QueryDocumentSnapshot } from
 import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow, TableCaption } from "@/components/ui/table";
 import LogOutButton from "@/components/logOutButton.tsx";
 import { db } from "@/lib/firebase.ts";
-import type { Poll, User } from "../types/poll";
+import type { Poll } from "../types/poll";
+import type { User } from "../types/user";
 import { Timestamp } from "firebase/firestore";
 
 function mapPoll(doc: QueryDocumentSnapshot<DocumentData>): Poll {

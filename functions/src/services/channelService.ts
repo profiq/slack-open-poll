@@ -1,4 +1,4 @@
-import type { Channel } from '../types/poll';
+import type { Channel } from '../types/channel';
 import { FirestoreService } from './firestoreService';
 
 export class ChannelService extends FirestoreService<Channel> {
