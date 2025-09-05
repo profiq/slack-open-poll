@@ -1,91 +1,50 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { UserService } from '../services/userService';
-import { firestore } from '../firebase';
 import type { User } from '../types/user';
-
-vi.mock('../firebase', () => ({
-  firestore: {
-    collection: vi.fn(),
-  },
-}));
+import type { DocumentReference } from 'firebase/firestore';
 
 describe('UserService', () => {
   let service: UserService;
-  let mockCollection: { doc: Mock; withConverter: Mock };
-  let mockDoc: { set: Mock; get: Mock };
+  let mockCreate: Mock<(data: Omit<User, 'createdAt'>) => Promise<DocumentReference<User>>>;
 
-  const mockUser: User = {
-    id: 'user-1',
-    name: 'Test User',
-    createdAt: '2023-01-01T00:00:00.000Z',
-  };
+  const mockUserRef = {} as DocumentReference<User>;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockDoc = {
-      set: vi.fn(),
-      get: vi.fn(),
-    };
-
-    mockCollection = {
-      doc: vi.fn().mockReturnValue(mockDoc),
-      withConverter: vi.fn().mockReturnThis(),
-    };
-
-    (firestore.collection as Mock).mockReturnValue(mockCollection);
-
     service = new UserService();
+
+    mockCreate = vi.fn() as Mock<(data: Omit<User, 'createdAt'>) => Promise<DocumentReference<User>>>;
+    (service as unknown as { create: typeof mockCreate }).create = mockCreate;
   });
 
   describe('addUser', () => {
-    it('should return null if user id is missing', async () => {
-      const result = await service.addUser({ name: 'No ID' } as User);
-      expect(result).toBeNull();
+    it('should throw an error if user id is missing', async () => {
+      await expect(service.addUser({ name: 'No ID' } as User)).rejects.toThrow('User ID is missing! Cannot save user.');
     });
 
-    it('should return existing user if already exists', async () => {
-      vi.spyOn(service, 'getById').mockResolvedValue(mockUser);
-
-      const result = await service.addUser({ id: 'user-1', name: 'Test User' });
-
-      expect(result).toEqual(mockUser);
-      expect(service.getById).toHaveBeenCalledWith('user-1');
-      expect(mockDoc.set).not.toHaveBeenCalled();
-    });
-
-    it('should save new user if not exists', async () => {
-      vi.spyOn(service, 'getById').mockResolvedValue(null);
-
+    it('should call create with user + createdAt', async () => {
       const mockDate = '2023-01-01T00:00:00.000Z';
       vi.spyOn(global.Date.prototype, 'toISOString').mockReturnValue(mockDate);
 
-      mockDoc.set.mockResolvedValue(undefined);
+      mockCreate.mockResolvedValue(mockUserRef);
 
       const newUser = { id: 'user-2', name: 'New User' };
       const result = await service.addUser(newUser);
 
-      expect(mockCollection.doc).toHaveBeenCalledWith('user-2');
-      expect(mockDoc.set).toHaveBeenCalledWith({
+      expect(mockCreate).toHaveBeenCalledWith({
         ...newUser,
         createdAt: mockDate,
       });
-      expect(result).toEqual({
-        ...newUser,
-        createdAt: mockDate,
-      });
+      expect(result).toBe(mockUserRef);
 
       vi.restoreAllMocks();
     });
 
-    it('should return null if saving fails', async () => {
-      vi.spyOn(service, 'getById').mockResolvedValue(null);
+    it('should propagate errors from create', async () => {
+      mockCreate.mockRejectedValue(new Error('Firestore error'));
 
-      mockDoc.set.mockRejectedValue(new Error('Firestore error'));
-
-      const result = await service.addUser({ id: 'user-3', name: 'Broken User' });
-
-      expect(result).toBeNull();
+      await expect(service.addUser({ id: 'user-3', name: 'Broken User' })).rejects.toThrow('Firestore error');
     });
   });
 });

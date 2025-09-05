@@ -145,16 +145,22 @@ export const handleVoteAction = async ({
   }
 
   if (!client.users?.info) {
-    console.warn('Slack client missing users.info');
+    log.info('Slack client missing users.info');
     return;
   }
 
   try {
     const userService = new UserService();
-    const userInfo = await client.users.info({ user: body.user.id });
 
+    const existingUser = await userService.getById(body.user.id);
+    if (existingUser) {
+      log.info('User already exists in users_list', { userId: existingUser.id });
+      return;
+    }
+
+    const userInfo = await client.users.info({ user: body.user.id });
     if (!userInfo.user) {
-      console.error('Failed to get info about user');
+      log.error('Failed to get info about user');
       return;
     }
 

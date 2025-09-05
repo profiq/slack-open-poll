@@ -1,91 +1,52 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { ChannelService } from '../services/channelService';
-import { firestore } from '../firebase';
 import type { Channel } from '../types/channel';
-
-vi.mock('../firebase', () => ({
-  firestore: {
-    collection: vi.fn(),
-  },
-}));
+import type { DocumentReference } from 'firebase/firestore';
 
 describe('ChannelService', () => {
   let service: ChannelService;
-  let mockCollection: { doc: Mock; withConverter: Mock };
-  let mockDoc: { set: Mock; get: Mock };
+  let mockCreate: Mock<(data: Omit<Channel, 'createdAt'>) => Promise<DocumentReference<Channel>>>;
 
-  const mockChannel: Channel = {
-    id: 'channel-1',
-    name: 'General',
-    createdAt: '2023-01-01T00:00:00.000Z',
-  };
+  const mockChannelRef = {} as DocumentReference<Channel>;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockDoc = {
-      set: vi.fn(),
-      get: vi.fn(),
-    };
-
-    mockCollection = {
-      doc: vi.fn().mockReturnValue(mockDoc),
-      withConverter: vi.fn().mockReturnThis(),
-    };
-
-    (firestore.collection as Mock).mockReturnValue(mockCollection);
-
     service = new ChannelService();
+
+    mockCreate = vi.fn() as Mock<(data: Omit<Channel, 'createdAt'>) => Promise<DocumentReference<Channel>>>;
+    (service as unknown as { create: typeof mockCreate }).create = mockCreate;
   });
 
   describe('addChannel', () => {
-    it('should return null if channel id is missing', async () => {
-      const result = await service.addChannel({ name: 'No ID' } as Channel);
-      expect(result).toBeNull();
+    it('should throw an error if channel id is missing', async () => {
+      await expect(service.addChannel({ name: 'No ID' } as Channel)).rejects.toThrow(
+        'Channel ID is missing! Cannot save channel.'
+      );
     });
 
-    it('should return existing channel if already exists', async () => {
-      vi.spyOn(service, 'getById').mockResolvedValue(mockChannel);
-
-      const result = await service.addChannel({ id: 'channel-1', name: 'General' });
-
-      expect(result).toEqual(mockChannel);
-      expect(service.getById).toHaveBeenCalledWith('channel-1');
-      expect(mockDoc.set).not.toHaveBeenCalled();
-    });
-
-    it('should save new channel if not exists', async () => {
-      vi.spyOn(service, 'getById').mockResolvedValue(null);
-
+    it('should call create with channel + createdAt', async () => {
       const mockDate = '2023-01-01T00:00:00.000Z';
       vi.spyOn(global.Date.prototype, 'toISOString').mockReturnValue(mockDate);
 
-      mockDoc.set.mockResolvedValue(undefined);
+      mockCreate.mockResolvedValue(mockChannelRef);
 
-      const newChannel = { id: 'channel-2', name: 'Random' };
+      const newChannel = { id: 'channel-1', name: 'Test Channel' };
       const result = await service.addChannel(newChannel);
 
-      expect(mockCollection.doc).toHaveBeenCalledWith('channel-2');
-      expect(mockDoc.set).toHaveBeenCalledWith({
+      expect(mockCreate).toHaveBeenCalledWith({
         ...newChannel,
         createdAt: mockDate,
       });
-      expect(result).toEqual({
-        ...newChannel,
-        createdAt: mockDate,
-      });
+      expect(result).toBe(mockChannelRef);
 
       vi.restoreAllMocks();
     });
 
-    it('should return null if saving fails', async () => {
-      vi.spyOn(service, 'getById').mockResolvedValue(null);
+    it('should propagate errors from create', async () => {
+      mockCreate.mockRejectedValue(new Error('Firestore error'));
 
-      mockDoc.set.mockRejectedValue(new Error('Firestore error'));
-
-      const result = await service.addChannel({ id: 'channel-3', name: 'Broken Channel' });
-
-      expect(result).toBeNull();
+      await expect(service.addChannel({ id: 'channel-2', name: 'Broken Channel' })).rejects.toThrow('Firestore error');
     });
   });
 });

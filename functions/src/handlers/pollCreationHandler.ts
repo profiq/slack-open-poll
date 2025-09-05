@@ -145,58 +145,75 @@ export const handlePollCommand = async ({
       channelTimeStamp: postedMessage.ts,
     });
 
-    if (!client?.users?.info) {
-      log.debug('Slack client missing users.info; skipping user persistence');
-    } else {
-      try {
-        const userService = new UserService();
-        const userInfo = await client.users.info({ user: command.user_id });
-        if (!userInfo.user) {
-          log.error('Failed to get info about user');
-        } else {
-          const user = {
-            id: command.user_id,
-            name: userInfo.user.real_name || userInfo.user.name || 'Unknown',
-          };
-          await userService.addUser(user);
-          log.info('User saved to users_list', { userId: user.id });
+    try {
+      const userService = new UserService();
+      const existingUser = await userService.getById(command.user_id);
+      if (existingUser) {
+        log.info('User already exists in users_list', { userId: existingUser.id });
+      } else if (client?.users?.info) {
+        try {
+          const userInfo = await client.users.info({ user: command.user_id });
+          if (userInfo.user) {
+            const user = {
+              id: command.user_id,
+              name: userInfo.user.real_name || userInfo.user.name || 'Unknown',
+            };
+            await userService.addUser(user);
+            log.info('User saved to users_list', { userId: user.id });
+          } else {
+            log.error('Failed to get info about user');
+          }
+        } catch {
+          log.warn('Failed to save user to users_list');
         }
-      } catch {
-        log.warn('Failed to save user to users_list');
+      } else {
+        log.debug('Slack client missing users.info; skipping user persistence');
       }
-    }
 
-    if (!client?.conversations?.info) {
-      log.debug('Slack client missing conversations.info; skipping channel persistence');
-    } else {
-      try {
-        const channelService = new ChannelService();
-        const channelInfo = await client.conversations.info({ channel: command.channel_id });
-        if (!channelInfo.channel) {
-          log.error('Failed to get info about channel');
-        } else {
-          const channelData = channelInfo.channel;
-          const channel = {
-            id: command.channel_id,
-            name: channelData.name || 'Unknown',
-          };
-          await channelService.addChannel(channel);
-          log.info('Channel saved to channels_list');
+      const channelService = new ChannelService();
+      const existingChannel = await channelService.getById(command.channel_id);
+      if (existingChannel) {
+        log.info('Channel already exists in channels_list', { workspaceId: existingChannel.id });
+      } else if (client?.conversations?.info) {
+        try {
+          const channelInfo = await client.conversations.info({ channel: command.channel_id });
+          if (channelInfo.channel) {
+            const channelData = channelInfo.channel;
+            const channel = {
+              id: command.channel_id,
+              name: channelData.name || 'Unknown',
+            };
+            await channelService.addChannel(channel);
+            log.info('Channel saved to channels_list');
+          } else {
+            log.error('Failed to get info about channel');
+          }
+        } catch {
+          log.warn('Failed to save channel to channels_list');
         }
-      } catch {
-        log.warn('Failed to save channel to channels_list');
+      } else {
+        log.debug('Slack client missing conversations.info; skipping channel persistence');
       }
+    } catch (error) {
+      log.error(String(error));
+
+      await client.chat.postEphemeral({
+        channel: command.channel_id,
+        user: command.user_id,
+        blocks: [mrkdwnSection('error', `Error: ${error}`)],
+        text: 'An error occurred',
+      });
+
+      return;
     }
   } catch (error) {
     log.error(String(error));
-
     await client.chat.postEphemeral({
       channel: command.channel_id,
       user: command.user_id,
       blocks: [mrkdwnSection('error', `Error: ${error}`)],
       text: 'An error occurred',
     });
-    return;
   }
 };
 

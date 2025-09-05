@@ -7,31 +7,13 @@ export class UserService extends FirestoreService<User> {
   }
 
   async addUser(user: Omit<User, 'createdAt'>) {
-    console.log('Adding user:', user);
-
     if (!user.id) {
-      console.error('User ID is missing! Cannot save user.');
-      return null;
+      throw new Error('User ID is missing! Cannot save user.');
     }
 
-    const existing = await this.getById(user.id);
-    console.log('Existing user:', existing);
+    const timestamp = new Date().toISOString();
+    const dataWithTimestamp = { ...user, createdAt: timestamp } as User;
 
-    if (!existing) {
-      const timestamp = new Date().toISOString();
-      const dataWithTimestamp = { ...user, createdAt: timestamp } as User;
-      const docRef = this.getDocRef(user.id);
-
-      try {
-        await docRef.set(dataWithTimestamp);
-        console.log('User saved:', dataWithTimestamp);
-        return dataWithTimestamp;
-      } catch (e) {
-        console.error('Failed to save user:', e);
-        return null;
-      }
-    }
-
-    return existing;
+    return this.create(dataWithTimestamp);
   }
 }
