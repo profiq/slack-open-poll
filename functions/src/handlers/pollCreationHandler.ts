@@ -125,6 +125,7 @@ export const handlePollCommand = async ({
         blocks: [mrkdwnSection('error', 'No poll was found')],
         text: 'No poll was found',
       });
+      return;
     }
 
     log.info('Poll was created', { pollId: pollSnap.id });

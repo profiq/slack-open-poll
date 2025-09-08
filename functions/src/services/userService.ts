@@ -11,9 +11,6 @@ export class UserService extends FirestoreService<User> {
       throw new Error('User ID is missing! Cannot save user.');
     }
 
-    const timestamp = new Date().toISOString();
-    const dataWithTimestamp = { ...user, createdAt: timestamp } as User;
-
-    return this.create(dataWithTimestamp);
+    return this.createWithId(user.id, user);
   }
 }

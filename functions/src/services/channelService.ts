@@ -11,9 +11,6 @@ export class ChannelService extends FirestoreService<Channel> {
       throw new Error('Channel ID is missing! Cannot save channel.');
     }
 
-    const timestamp = new Date().toISOString();
-    const dataWithTimestamp = { ...channel, createdAt: timestamp } as Channel;
-
-    return this.create(dataWithTimestamp);
+    return this.createWithId(channel.id, channel);
   }
 }
