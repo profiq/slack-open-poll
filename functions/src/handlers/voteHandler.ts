@@ -151,8 +151,8 @@ export const handleVoteAction = async ({
 
   try {
     const userService = new UserService();
-
     const existingUser = await userService.getById(body.user.id);
+
     if (existingUser) {
       log.info('User already exists in users_list', { userId: existingUser.id });
       return;
@@ -160,7 +160,7 @@ export const handleVoteAction = async ({
 
     const userInfo = await client.users.info({ user: body.user.id });
     if (!userInfo.user) {
-      log.error('Failed to get info about user');
+      log.error('Failed to get info about user', { userId: body.user.id });
       return;
     }
 
@@ -172,6 +172,6 @@ export const handleVoteAction = async ({
     await userService.addUser(user);
     log.info('User saved to users_list', { userId: user.id });
   } catch {
-    log.warn('Failed to save user to users_list');
+    log.error('Failed to save user to users_list');
   }
 };
