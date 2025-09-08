@@ -17,6 +17,18 @@ vi.mock('../../components/pollDisplay', () => ({
     },
   ]),
 }));
+vi.mock('../../services/userService', () => ({
+  UserService: vi.fn().mockImplementation(() => ({
+    getById: vi.fn().mockResolvedValue(null),
+    addUser: vi.fn().mockResolvedValue(undefined),
+  })),
+}));
+vi.mock('../../services/channelService', () => ({
+  ChannelService: vi.fn().mockImplementation(() => ({
+    getById: vi.fn().mockResolvedValue(null),
+    addChannel: vi.fn().mockResolvedValue(undefined),
+  })),
+}));
 
 describe('Poll Creation Integration Tests', () => {
   const getTestEnv = setupBasicIntegrationTest();

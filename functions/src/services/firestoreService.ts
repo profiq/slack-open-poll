@@ -83,4 +83,11 @@ export class FirestoreService<T extends BaseDocument> {
     const docRef = this.getDocRef(id);
     transaction.delete(docRef);
   }
+
+  async createWithId(id: string, data: Omit<T, 'createdAt'>) {
+    const timestamp = new Date().toISOString();
+    const dataWithTimestamp = { ...data, createdAt: timestamp } as T;
+    await this.collection.doc(id).set(dataWithTimestamp);
+    return this.collection.doc(id);
+  }
 }

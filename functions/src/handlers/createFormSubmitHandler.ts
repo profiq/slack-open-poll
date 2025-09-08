@@ -4,6 +4,8 @@ import { PollService } from '../services/pollService';
 import { mrkdwnSection } from '../components/mrkdwnSection';
 import { AnyBlock } from '@slack/types';
 import { pollDisplayBlock } from '../components/pollDisplay';
+import { UserService } from '../services/userService';
+import { ChannelService } from '../services/channelService';
 
 export const handleSubmitCreatePoll = async (
   args: SlackViewMiddlewareArgs<ViewSubmitAction> & { client: App['client'] }
@@ -125,6 +127,49 @@ export const handleSubmitCreatePoll = async (
     await pollRef.update({
       channelTimeStamp: postedMessage.ts,
     });
+
+    if (!client?.users?.info) {
+      log.debug('Slack client missing users.info; skipping user persistence');
+    } else {
+      try {
+        const userService = new UserService();
+        const userInfo = await client.users.info({ user: body.user.id });
+        if (!userInfo.user) {
+          log.error('Failed to get info about user');
+        } else {
+          const user = {
+            id: body.user.id,
+            name: userInfo.user.real_name || userInfo.user.name || 'Unknown',
+          };
+          await userService.addUser(user);
+          log.info('User saved to users_list', { userId: user.id });
+        }
+      } catch {
+        log.warn('Failed to save user to users_list');
+      }
+    }
+
+    if (!client?.conversations?.info) {
+      log.debug('Slack client missing conversations.info; skipping channel persistence');
+    } else {
+      try {
+        const channelService = new ChannelService();
+        const channelInfo = await client.conversations.info({ channel: String(channelId) });
+        if (!channelInfo.channel) {
+          log.error('Failed to get info about channel');
+        } else {
+          const channelData = channelInfo.channel;
+          const channel = {
+            id: channelId,
+            name: channelData.name || 'Unknown',
+          };
+          await channelService.addChannel(channel);
+          log.info('Channel saved to channels_list');
+        }
+      } catch {
+        log.warn('Failed to save channel to channels_list');
+      }
+    }
   } catch (e) {
     log.error(String(e));
   }

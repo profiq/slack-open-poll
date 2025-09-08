@@ -4,6 +4,7 @@ import { Vote } from '../types/poll';
 import { pollDisplayBlock } from '../components/pollDisplay';
 import { Logger, LoggerContext } from '../utils/logger';
 import { z } from 'zod';
+import { UserService } from '../services/userService';
 
 const voteActionValue = z.object({
   pollId: z.string(),
@@ -57,9 +58,10 @@ export const handleVoteAction = async ({
           const pollService = new PollService();
 
           const poll = await pollService.getById(pollId);
+
           if (!poll) {
             log.warn('Poll not found', { pollId });
-            throw new Error('Poll not found');
+            return;
           }
 
           if (poll.closed) {
@@ -82,8 +84,6 @@ export const handleVoteAction = async ({
               user: userId,
               text: 'This option is no longer available for voting.',
             });
-
-            throw new Error(`Option not found or deleted: ${optionId}`);
           }
 
           try {
@@ -103,9 +103,10 @@ export const handleVoteAction = async ({
           }
 
           const updatedPoll = await pollService.getById(pollId);
+
           if (!updatedPoll) {
             log.warn('Poll not found after voting', { pollId });
-            throw new Error('Poll not found after voting');
+            return;
           }
 
           const updatedBlocks = pollDisplayBlock(updatedPoll, pollId);
@@ -141,5 +142,36 @@ export const handleVoteAction = async ({
     log.error(String(error));
   } finally {
     log.endTimer('voteAction', timerStart);
+  }
+
+  if (!client.users?.info) {
+    log.info('Slack client missing users.info');
+    return;
+  }
+
+  try {
+    const userService = new UserService();
+    const existingUser = await userService.getById(body.user.id);
+
+    if (existingUser) {
+      log.info('User already exists in users_list', { userId: existingUser.id });
+      return;
+    }
+
+    const userInfo = await client.users.info({ user: body.user.id });
+    if (!userInfo.user) {
+      log.error('Failed to get info about user', { userId: body.user.id });
+      return;
+    }
+
+    const user = {
+      id: body.user.id,
+      name: userInfo.user.real_name || userInfo.user.name || 'Unknown',
+    };
+
+    await userService.addUser(user);
+    log.info('User saved to users_list', { userId: user.id });
+  } catch {
+    log.error('Failed to save user to users_list');
   }
 };

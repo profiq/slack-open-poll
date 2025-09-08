@@ -6,6 +6,8 @@ import { AllMiddlewareArgs, SlackCommandMiddlewareArgs } from '@slack/bolt';
 import { Logger } from '../utils/logger';
 import { extractQuotedText, parseFlags, parseOptions, getParsingErrorMessage } from '../utils/commandParser';
 import { pollFormCreate } from '../components/pollFormCreate';
+import { UserService } from '../services/userService';
+import { ChannelService } from '../services/channelService';
 
 export const handlePollCommand = async ({
   command,
@@ -123,6 +125,7 @@ export const handlePollCommand = async ({
         blocks: [mrkdwnSection('error', 'No poll was found')],
         text: 'No poll was found',
       });
+      return;
     }
 
     log.info('Poll was created', { pollId: pollSnap.id });
@@ -142,16 +145,76 @@ export const handlePollCommand = async ({
     await pollRef.update({
       channelTimeStamp: postedMessage.ts,
     });
+
+    try {
+      const userService = new UserService();
+      const existingUser = await userService.getById(command.user_id);
+      if (existingUser) {
+        log.info('User already exists in users_list', { userId: existingUser.id });
+      } else if (client?.users?.info) {
+        try {
+          const userInfo = await client.users.info({ user: command.user_id });
+          if (userInfo.user) {
+            const user = {
+              id: command.user_id,
+              name: userInfo.user.real_name || userInfo.user.name || 'Unknown',
+            };
+            await userService.addUser(user);
+            log.info('User saved to users_list', { userId: user.id });
+          } else {
+            log.error('Failed to get info about user');
+          }
+        } catch {
+          log.warn('Failed to save user to users_list');
+        }
+      } else {
+        log.debug('Slack client missing users.info; skipping user persistence');
+      }
+
+      const channelService = new ChannelService();
+      const existingChannel = await channelService.getById(command.channel_id);
+      if (existingChannel) {
+        log.info('Channel already exists in channels_list', { workspaceId: existingChannel.id });
+      } else if (client?.conversations?.info) {
+        try {
+          const channelInfo = await client.conversations.info({ channel: command.channel_id });
+          if (channelInfo.channel) {
+            const channelData = channelInfo.channel;
+            const channel = {
+              id: command.channel_id,
+              name: channelData.name || 'Unknown',
+            };
+            await channelService.addChannel(channel);
+            log.info('Channel saved to channels_list');
+          } else {
+            log.error('Failed to get info about channel');
+          }
+        } catch {
+          log.warn('Failed to save channel to channels_list');
+        }
+      } else {
+        log.debug('Slack client missing conversations.info; skipping channel persistence');
+      }
+    } catch (error) {
+      log.error(String(error));
+
+      await client.chat.postEphemeral({
+        channel: command.channel_id,
+        user: command.user_id,
+        blocks: [mrkdwnSection('error', `Error: ${error}`)],
+        text: 'An error occurred',
+      });
+
+      return;
+    }
   } catch (error) {
     log.error(String(error));
-
     await client.chat.postEphemeral({
       channel: command.channel_id,
       user: command.user_id,
       blocks: [mrkdwnSection('error', `Error: ${error}`)],
       text: 'An error occurred',
     });
-    return;
   }
 };
 
