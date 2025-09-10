@@ -6,13 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar,  AvatarImage } from '@/components/ui/avatar';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from 'recharts';
 import { ChevronDown, ChevronUp, Search, Users } from 'lucide-react';
 import { chartConfig } from '@/lib/chart-config';
 import LogOutButton from '@/components/logOutButton.tsx';
 import type { Poll, Vote as BaseVote } from '../types/poll';
+import profile_placeholder from '../assets/Profile_avatar_placeholder_large.png';
+
 
 interface VoterInfo {
   userId: string;
@@ -191,15 +193,6 @@ export function PollDetail() {
         if (!a.highlighted && b.highlighted) return 1;
         return b.timestamp.getTime() - a.timestamp.getTime();
       });
-  };
-
-  const getUserInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map((word) => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   const voteCounts = useMemo(() => {
@@ -402,11 +395,14 @@ export function PollDetail() {
                                     : 'bg-gray-50 hover:bg-gray-100'
                                 }`}
                               >
+
+
+
                                 <Avatar className="h-8 w-8">
-                                  <AvatarFallback className="text-xs">
-                                    {getUserInitials(voter.name)}
-                                  </AvatarFallback>
+                                  <AvatarImage src={profile_placeholder} alt="Default profile" />
                                 </Avatar>
+
+
                                 <div className="flex-1">
                                   <p
                                     className={`font-medium text-sm ${voter.highlighted ? 'text-yellow-800 font-semibold' : ''}`}
