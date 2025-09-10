@@ -53,6 +53,7 @@ export const handleVoteAction = async ({
           const vote: Vote = {
             userId,
             optionId,
+            timeStamp: new Date().toISOString(),
           };
 
           const pollService = new PollService();
