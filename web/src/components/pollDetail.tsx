@@ -33,6 +33,8 @@ export function PollDetail() {
   const [searchQuery, setSearchQuery] = useState('');
   const [highlightedVoters, setHighlightedVoters] = useState<Set<string>>(new Set());
   const [, setCurrentTime] = useState(new Date());
+  const [sortOrder, setSortOrder] = useState<'timestamp' | 'alphabetical'>('timestamp');
+
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -180,20 +182,29 @@ export function PollDetail() {
   const getVotersForOption = (optionId: string): VoterInfo[] => {
     if (!poll?.votes) return [];
 
-    return (poll.votes as (BaseVote & { timestamp: Date })[])
+    const voters = (poll.votes as (BaseVote & { timestamp: Date })[])
       .filter((vote) => vote.optionId === optionId)
       .map((vote) => ({
         userId: vote.userId,
         name: users[vote.userId] || 'Unknown User',
         timestamp: vote.timestamp,
         highlighted: highlightedVoters.has(vote.userId),
-      }))
-      .sort((a, b) => {
-        if (a.highlighted && !b.highlighted) return -1;
-        if (!a.highlighted && b.highlighted) return 1;
-        return b.timestamp.getTime() - a.timestamp.getTime();
-      });
+      }));
+
+    voters.sort((a, b) => {
+      if (a.highlighted && !b.highlighted) return -1;
+      if (!a.highlighted && b.highlighted) return 1;
+
+      if (sortOrder === 'timestamp') {
+        return b.timestamp.getTime() - a.timestamp.getTime(); // nejnovější první
+      } else {
+        return a.name.localeCompare(b.name, 'cs', { sensitivity: 'base' }); // abecedně
+      }
+    });
+
+    return voters;
   };
+
 
   const voteCounts = useMemo(() => {
     return (
@@ -294,10 +305,24 @@ export function PollDetail() {
         )}
 
         <Card>
-          <CardHeader>
-            <CardTitle>Options & Voters</CardTitle>
-          </CardHeader>
-          <CardContent>
+            <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <CardTitle>Options & Voters</CardTitle>
+              {!poll.anonymous && totalVotes > 0 && (
+                <div className="flex items-center gap-2 mt-2 md:mt-0">
+                  <label htmlFor="sortOrder" className="text-sm text-muted-foreground">Sort by:</label>
+                  <select
+                    id="sortOrder"
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value as 'timestamp' | 'alphabetical')}
+                    className="border rounded-md text-sm p-1"
+                  >
+                    <option value="timestamp">Most recent</option>
+                    <option value="alphabetical">Alphabetical</option>
+                  </select>
+                </div>
+              )}
+            </CardHeader>
+            <CardContent>
             <div className="space-y-4">
               {poll.options.map((option) => {
                 const voteCount = voteCounts[option.id] ?? 0;
