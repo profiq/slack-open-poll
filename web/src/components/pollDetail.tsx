@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar,  AvatarImage } from '@/components/ui/avatar';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, LabelList, Tooltip, XAxis, YAxis } from 'recharts';
 import { ChevronDown, ChevronUp, Search, Users } from 'lucide-react';
 import { chartConfig } from '@/lib/chart-config';
 import LogOutButton from '@/components/logOutButton.tsx';
@@ -254,6 +254,33 @@ export function PollDetail() {
     return isNaN(date.getTime()) ? "Unknown" : date.toLocaleString();
   }
 
+  const voteTimeline = useMemo(() => {
+    if (!poll?.votes || poll.votes.length === 0) return [];
+
+    const sortedVotes = [...poll.votes].sort((a, b) => {
+      const at = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+      const bt = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+      return at - bt;
+    });
+
+    const timeline: { time: string; cumulativeVotes: number }[] = [];
+    sortedVotes.forEach((vote, index) => {
+      const time = vote.timestamp ? new Date(vote.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Unknown';
+      timeline.push({ time, cumulativeVotes: index + 1 });
+    });
+
+    return timeline;
+  }, [poll?.votes]);
+
+  const averageVoteTime = useMemo(() => {
+    if (!poll?.votes || poll.votes.length === 0 || !poll.createdAt) return null;
+    const startTime = new Date(poll.createdAt).getTime();
+    const totalDiff = poll.votes.reduce((sum, vote) => {
+      const voteTime = vote.timestamp ? new Date(vote.timestamp).getTime() : startTime;
+      return sum + (voteTime - startTime);
+    }, 0);
+    return totalDiff / poll.votes.length / 1000;
+  }, [poll?.votes, poll?.createdAt]);
 
   const totalVotes = useMemo(() => {
     return Object.values(voteCounts).reduce((sum, count) => sum + count, 0);
@@ -449,12 +476,9 @@ export function PollDetail() {
                                 }`}
                               >
 
-
-
                                 <Avatar className="h-8 w-8">
                                   <AvatarImage src={profile_placeholder} alt="Default profile" />
                                 </Avatar>
-
 
                                 <div className="flex-1">
                                   <p
@@ -530,6 +554,45 @@ export function PollDetail() {
                 <p className="text-lg">No votes yet</p>
                 <p className="text-sm">Be the first to vote on this poll!</p>
               </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Voting Timeline</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {voteTimeline.length > 0 ? (
+              <BarChart
+                data={voteTimeline}
+                margin={{ left: 120, right: 16 }}
+                width={670}
+                height={250}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="time" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="cumulativeVotes" fill="var(--color-desktop)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            ) : (
+              <p className="text-muted-foreground text-center">No votes yet</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Voting Speed</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {averageVoteTime ? (
+              <p>
+                Average time to vote: <strong>{Math.round(averageVoteTime)} seconds</strong>
+              </p>
+            ) : (
+              <p className="text-muted-foreground">No votes yet</p>
             )}
           </CardContent>
         </Card>
