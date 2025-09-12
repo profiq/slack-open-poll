@@ -33,8 +33,8 @@ const mockPoll: Poll = {
     { id: '2', label: 'Blue' },
   ],
   votes: [
-    { userId: 'U123', optionId: '1' },
-    { userId: 'U123', optionId: '2' },
+    { userId: 'U123', optionId: '1', timestamp: new Date().toISOString() },
+    { userId: 'U123', optionId: '2', timestamp: new Date().toISOString() },
   ],
   channelId: 'C123',
   channelTimeStamp: '123.456',

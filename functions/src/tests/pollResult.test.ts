@@ -27,8 +27,8 @@ describe('PollResultBlock', () => {
     const poll: Poll = {
       ...basePoll,
       votes: [
-        { userId: 'U1', optionId: '2' },
-        { userId: 'U2', optionId: '2' },
+        { userId: 'U1', optionId: '2', timestamp: new Date().toISOString() },
+        { userId: 'U2', optionId: '2', timestamp: new Date().toISOString() },
       ],
     };
 
@@ -45,9 +45,9 @@ describe('PollResultBlock', () => {
     const poll: Poll = {
       ...basePoll,
       votes: [
-        { userId: 'U1', optionId: '1' },
-        { userId: 'U2', optionId: '2' },
-        { userId: 'U3', optionId: '2' },
+        { userId: 'U1', optionId: '1', timestamp: new Date().toISOString() },
+        { userId: 'U2', optionId: '2', timestamp: new Date().toISOString() },
+        { userId: 'U3', optionId: '2', timestamp: new Date().toISOString() },
       ],
     };
 
@@ -69,9 +69,9 @@ describe('PollResultBlock', () => {
     const poll: Poll = {
       ...basePoll,
       votes: [
-        { userId: 'U1', optionId: '1' },
-        { userId: 'U2', optionId: '2' },
-        { userId: 'U3', optionId: '2' },
+        { userId: 'U1', optionId: '1', timestamp: new Date().toISOString() },
+        { userId: 'U2', optionId: '2', timestamp: new Date().toISOString() },
+        { userId: 'U3', optionId: '2', timestamp: new Date().toISOString() },
       ],
     };
 
@@ -94,8 +94,8 @@ describe('PollResultBlock', () => {
         { label: 'Option B', id: '2' },
       ],
       votes: [
-        { userId: 'U1', optionId: '1' },
-        { userId: 'U2', optionId: '2' },
+        { userId: 'U1', optionId: '1', timestamp: new Date().toISOString() },
+        { userId: 'U2', optionId: '2', timestamp: new Date().toISOString() },
       ],
     };
 

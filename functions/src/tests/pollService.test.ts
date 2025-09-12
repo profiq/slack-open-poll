@@ -139,6 +139,7 @@ describe('PollService', () => {
     const mockVote: Vote = {
       userId: 'user-1',
       optionId: 'opt-1',
+      timestamp: new Date().toISOString(),
     };
 
     it('should add new vote when user has not voted', async () => {
@@ -153,7 +154,7 @@ describe('PollService', () => {
     });
 
     it('should update vote when user changes option', async () => {
-      const existingVote: Vote = { userId: 'user-1', optionId: 'opt-2' };
+      const existingVote: Vote = { userId: 'user-1', optionId: 'opt-2', timestamp: new Date().toISOString() };
       const pollWithVote = { ...mockPoll, votes: [existingVote] };
       mockTransaction.get.mockResolvedValue({
         data: () => pollWithVote,
@@ -195,13 +196,13 @@ describe('PollService', () => {
     });
 
     it('should preserve other users votes when updating', async () => {
-      const otherVote: Vote = { userId: 'user-2', optionId: 'opt-2' };
+      const otherVote: Vote = { userId: 'user-2', optionId: 'opt-2', timestamp: new Date().toISOString() };
       const pollWithMultipleVotes = { ...mockPoll, votes: [otherVote, mockVote] };
       mockTransaction.get.mockResolvedValue({
         data: () => pollWithMultipleVotes,
       });
 
-      const newVote: Vote = { userId: 'user-1', optionId: 'opt-2' };
+      const newVote: Vote = { userId: 'user-1', optionId: 'opt-2', timestamp: new Date().toISOString() };
       await service.vote('poll-1', newVote);
 
       expect(mockTransaction.update).toHaveBeenCalledWith(mockDoc, { votes: [otherVote, newVote] });
@@ -210,9 +211,9 @@ describe('PollService', () => {
     it('should handle transaction failures', async () => {
       (firestore.runTransaction as Mock).mockRejectedValue(new Error('Transaction failed'));
 
-      await expect(service.vote('poll-1', { userId: 'user-1', optionId: 'opt-1' })).rejects.toThrow(
-        'Transaction failed'
-      );
+      await expect(
+        service.vote('poll-1', { userId: 'user-1', optionId: 'opt-1', timestamp: new Date().toISOString() })
+      ).rejects.toThrow('Transaction failed');
     });
 
     // multiple choice tests
@@ -235,7 +236,7 @@ describe('PollService', () => {
         data: () => pollWithMultipleVotes,
       });
 
-      const newVote: Vote = { userId: 'user-2', optionId: 'opt-2' };
+      const newVote: Vote = { userId: 'user-2', optionId: 'opt-2', timestamp: new Date().toISOString() };
       await service.vote('poll-1', newVote);
 
       expect(mockTransaction.update).toHaveBeenCalledWith(mockDoc, { votes: [newVote] });
@@ -254,8 +255,8 @@ describe('PollService', () => {
     it('should reject vote if user has reached maxVotes in multiple choice poll', async () => {
       const maxVotes = 2;
       const userVotes: Vote[] = [
-        { userId: 'user-1', optionId: 'opt-1' },
-        { userId: 'user-1', optionId: 'opt-2' },
+        { userId: 'user-1', optionId: 'opt-1', timestamp: new Date().toISOString() },
+        { userId: 'user-1', optionId: 'opt-2', timestamp: new Date().toISOString() },
       ];
       const pollWithMaxVotes = {
         ...mockPoll,
@@ -268,7 +269,7 @@ describe('PollService', () => {
         data: () => pollWithMaxVotes,
       });
 
-      const newVote: Vote = { userId: 'user-1', optionId: 'opt-3' };
+      const newVote: Vote = { userId: 'user-1', optionId: 'opt-3', timestamp: new Date().toISOString() };
 
       await expect(service.vote('poll-1', newVote)).rejects.toThrow(`You can only vote for up to ${maxVotes} options.`);
     });

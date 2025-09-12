@@ -26,4 +26,5 @@ export interface PollOption {
 export interface Vote {
   userId: string;
   optionId: string;
+  timestamp: string;
 }
