@@ -51,10 +51,10 @@ export function PollDetail() {
       if (docSnap.exists()) {
         const data = docSnap.data();
 
-        const normalizedVotes = (data.votes ?? []).map((vote: BaseVote) => ({
-          ...vote,
-          timestamp: vote.timestamp ? new Date(vote.timestamp) : undefined,
-        }));
+        const normalizedVotes = (data.votes ?? []).map((vote: BaseVote) => {
+          const ts = (vote?.timestamp ?? vote?.timestamp) as string | undefined;
+          return { ...vote, timestamp: ts };
+        });
 
         setPoll({
           id: docSnap.id,
