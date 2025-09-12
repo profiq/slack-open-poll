@@ -182,12 +182,15 @@ export function PollDetail() {
   const getVotersForOption = (optionId: string): VoterInfo[] => {
     if (!poll?.votes) return [];
 
-    const voters = (poll.votes as (BaseVote & { timestamp: Date })[])
+    const voters = (poll.votes as (BaseVote & { timestamp?: string })[])
       .filter((vote) => vote.optionId === optionId)
       .map((vote) => ({
         userId: vote.userId,
         name: users[vote.userId] || 'Unknown User',
-        timestamp: vote.timestamp,
+        timestamp: (() => {
+          const d = vote.timestamp ? new Date(vote.timestamp) : undefined;
+          return d && !isNaN(d.getTime()) ? d : undefined;
+        })(),
         highlighted: highlightedVoters.has(vote.userId),
       }));
 
@@ -196,7 +199,9 @@ export function PollDetail() {
       if (!a.highlighted && b.highlighted) return 1;
 
       if (sortOrder === 'timestamp') {
-        return b.timestamp.getTime() - a.timestamp.getTime(); // nejnovější první
+        const at = a.timestamp ? a.timestamp.getTime() : -Infinity;
+        const bt = b.timestamp ? b.timestamp.getTime() : -Infinity;
+        return bt - at;
       } else {
         return a.name.localeCompare(b.name, 'cs', { sensitivity: 'base' }); // abecedně
       }
@@ -221,9 +226,9 @@ export function PollDetail() {
   const chartData = useMemo(() => {
     if (!poll?.options) return [{ optionId: 'No options', votes: 0 }];
 
-    return poll.options.map((option) => ({
-      optionId: option.label,
-      votes: voteCounts[option.id] || 0,
+    return poll.options.filter((o) => !o.deleted).map((option) => ({
+        optionId: option.label,
+        votes: voteCounts[option.id] || 0,
     }));
   }, [poll?.options, voteCounts]);
 
@@ -347,7 +352,7 @@ export function PollDetail() {
             </CardHeader>
             <CardContent>
             <div className="space-y-4">
-              {poll.options.map((option) => {
+              {poll.options.filter((o) => !o.deleted).map((option) => {
                 const voteCount = voteCounts[option.id] ?? 0;
                 const voters = getVotersForOption(option.id);
                 const isExpanded = expandedOptions.has(option.id);
