@@ -111,7 +111,7 @@ describe('handleVoteAction', () => {
       client: mockClient,
     });
 
-    expect(mockVote).toHaveBeenCalledWith(pollId, { userId, optionId, timeStamp: expect.any(String) });
+    expect(mockVote).toHaveBeenCalledWith(pollId, { userId, optionId, timestamp: expect.any(String) });
     expect(mockGetPoll).toHaveBeenCalledWith(pollId);
 
     expect(mockPostMessage).not.toHaveBeenCalled();
@@ -180,7 +180,7 @@ describe('handleVoteAction', () => {
 
     expect(mockAck).toHaveBeenCalled();
     expect(mockGetPoll).toHaveBeenCalledWith(pollId);
-    expect(mockVote).toHaveBeenCalledWith(pollId, { userId, optionId, timeStamp: expect.any(String) });
+    expect(mockVote).toHaveBeenCalledWith(pollId, { userId, optionId, timestamp: expect.any(String) });
     expect(mockUpdateMessage).toHaveBeenCalledWith({
       channel: poll.channelId,
       ts: poll.channelTimeStamp,
@@ -236,7 +236,7 @@ describe('handleVoteAction', () => {
 
     expect(mockAck).toHaveBeenCalled();
     expect(mockGetPoll).toHaveBeenCalledWith(pollId);
-    expect(mockVote).toHaveBeenCalledWith(pollId, { userId, optionId, timeStamp: expect.any(String) });
+    expect(mockVote).toHaveBeenCalledWith(pollId, { userId, optionId, timestamp: expect.any(String) });
 
     expect(mockPostEphemeral).toHaveBeenCalledWith({
       channel: 'C123456',
@@ -290,7 +290,7 @@ describe('handleVoteAction', () => {
 
     expect(mockAck).toHaveBeenCalled();
     expect(mockGetPoll).toHaveBeenCalledWith(pollId);
-    expect(mockVote).toHaveBeenCalledWith(pollId, { userId, optionId, timeStamp: expect.any(String) });
+    expect(mockVote).toHaveBeenCalledWith(pollId, { userId, optionId, timestamp: expect.any(String) });
     expect(mockPostMessage).not.toHaveBeenCalled();
     expect(mockUpdateMessage).toHaveBeenCalledWith({
       channel: poll.channelId,

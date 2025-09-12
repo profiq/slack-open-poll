@@ -19,7 +19,7 @@ import profile_placeholder from '../assets/Profile_avatar_placeholder_large.png'
 interface VoterInfo {
   userId: string;
   name: string;
-  timestamp: Date;
+  timestamp?: Date;
   highlighted?: boolean;
 }
 
@@ -53,7 +53,7 @@ export function PollDetail() {
 
         const normalizedVotes = (data.votes ?? []).map((vote: BaseVote) => ({
           ...vote,
-          timestamp: vote.timeStamp ? new Date(vote.timeStamp) : new Date(),
+          timestamp: vote.timestamp ? new Date(vote.timestamp) : undefined,
         }));
 
         setPoll({
@@ -227,6 +227,29 @@ export function PollDetail() {
     }));
   }, [poll?.options, voteCounts]);
 
+  type FirestoreTimestampLike = { toDate: () => Date };
+
+  function formatDateTime(
+    ts: Date | string | number | FirestoreTimestampLike | null | undefined
+  ): string {
+    if (!ts) return "Unknown";
+
+    let date: Date;
+
+    if (typeof (ts as FirestoreTimestampLike)?.toDate === "function") {
+      date = (ts as FirestoreTimestampLike).toDate();
+    } else if (ts instanceof Date) {
+      date = ts;
+    } else if (typeof ts === "string" || typeof ts === "number") {
+      date = new Date(ts);
+    } else {
+      return "Unknown";
+    }
+
+    return isNaN(date.getTime()) ? "Unknown" : date.toLocaleString();
+  }
+
+
   const totalVotes = useMemo(() => {
     return Object.values(voteCounts).reduce((sum, count) => sum + count, 0);
   }, [voteCounts]);
@@ -258,7 +281,7 @@ export function PollDetail() {
             </p>
             <p>
               <strong>Created:</strong>{' '}
-              {poll.createdAt ? new Date(poll.createdAt).toLocaleString() : 'Unknown'}
+              {formatDateTime(poll.createdAt)}
             </p>
             <div className="flex gap-2 flex-wrap mt-2">
               <Badge variant="outline">{poll.multiple ? 'Multiple choice' : 'Single choice'}</Badge>
