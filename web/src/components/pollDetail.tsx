@@ -203,7 +203,7 @@ export function PollDetail() {
         const bt = b.timestamp ? b.timestamp.getTime() : -Infinity;
         return bt - at;
       } else {
-        return a.name.localeCompare(b.name, 'cs', { sensitivity: 'base' }); // abecedně
+        return a.name.localeCompare(b.name, 'cs', { sensitivity: 'base' });
       }
     });
 
